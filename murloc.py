@@ -2,6 +2,27 @@
 
 
 
+def run_feature_selection(input_file):
+    """
+    """
+
+    ## importation
+    import fs_boruta
+
+    ## parameters
+
+    ## ask user with algorithm to use
+
+    ## Boruta Case ##-----------------------------------------------------------
+    #-> TODO : ask user for config
+    #-> init default config
+    iteration = 300
+    depth = 5
+
+    #-> run boruta with config
+    fs_boruta(input_file, iteration, depth, output_folder)
+
+
 
 def run(input_file, output_folder, action):
     """
@@ -17,7 +38,7 @@ def run(input_file, output_folder, action):
         print("[!] Can't find "+str(input_file))
         return -1
 
-    ## check if output folder exist, if not ceate it
+    ## check if output folder exist, if not create it
     if(not os.path.isdir(output_folder)):
         os.mkdir(output_folder)
 
@@ -32,7 +53,7 @@ def run(input_file, output_folder, action):
     elif(action == "clf"):
         pass
     elif(action == "fs"):
-        pass
+        run_feature_selection(input_file)
 
 
 
