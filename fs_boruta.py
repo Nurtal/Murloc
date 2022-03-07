@@ -12,21 +12,22 @@ def run_boruta(dataset, iteration, depth, output_folder):
     df = pd.read_csv(dataset)
 
     ## TODO - START
-    #-> data preprocessing
-    df = df.dropna()
 
-    ## drop control if there are present
-    df = df.rename(columns={"Omics":"OMIC", "OMICs":"OMIC", "OMICS":"OMIC", "OMICID":"OMIC"})
-    df = df[df['CLUSTER'].isin(["C1", "C2", "C3", "C4"])]
-    df = df.replace({"C1":0,"C2":1,"C3":2,"C4":3})
+    ## encode class label
+    cmpt_class = 0
+    old_label_to_encode = {}
+    for y in list(df['LABEL']):
+        if(y not in old_label_to_encode.keys()):
+            old_label_to_encode[y] = cmpt_class
+            cmpt_class+=1
+    df = df.replace(old_label_to_encode)
 
     ## extract features
-    features = [f for f in df.columns if f not in ['CLUSTER','OMIC']]
+    features = [f for f in df.columns if f not in ['ID','LABEL']]
 
     ## prepare dataset
     X = df[features].values
-    Y = df['CLUSTER'].values.ravel()
-    ## TODO - END
+    Y = df['LABEL'].values.ravel()
 
     ## setup the RandomForrestClassifier as the estimator to use for Boruta
     rf = RandomForestClassifier(n_jobs=-1, class_weight='balanced', max_depth=depth)
