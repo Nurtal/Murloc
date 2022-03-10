@@ -7,11 +7,14 @@ def run_boruta(dataset, iteration, depth, output_folder):
     import pandas as pd
     from sklearn.ensemble import RandomForestClassifier
     from boruta import BorutaPy
+    import dataset_preprocessing
 
     ## load file
     df = pd.read_csv(dataset)
 
-    ## TODO - START
+    ## preprocess file
+    df = dataset_preprocessing.drop_missing_values(df)
+    df = dataset_preprocessing.rename_variables(df)
 
     ## encode class label
     cmpt_class = 0
@@ -57,6 +60,7 @@ def run_boruta(dataset, iteration, depth, output_folder):
     ## craft feature output file
     output_filename = output_folder+"/boruta_selected_features.csv"
     output_dataset = open(output_filename, "w")
+    output_dataset.write("FEATURE\n")
     for final_f in final_features:
         output_dataset.write(str(final_f)+"\n")
     output_dataset.close()

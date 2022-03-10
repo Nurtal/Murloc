@@ -1,15 +1,12 @@
 
 
-def drop_missing_values(input_file):
+def drop_missing_values(df):
     """
     """
 
     ## importation
     import pandas as pd
     import numpy as np
-
-    ## load dataset
-    df = pd.read_csv(input_file)
 
     ## replace Missing & NA values by np.nan
     df = df.replace({
@@ -29,15 +26,12 @@ def drop_missing_values(input_file):
     return df
 
 
-def rename_variables(input_file):
+def rename_variables(df):
     """
     """
 
     ## importation
     import pandas as pd
-
-    ## laod dataset
-    df = pd.read_csv(input_file)
 
     ## extract features
     features = list(df.keys())

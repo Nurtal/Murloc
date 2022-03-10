@@ -20,7 +20,9 @@ def run_feature_selection(input_file):
     depth = 5
 
     #-> run boruta with config
-    fs_boruta(input_file, iteration, depth, output_folder)
+    fs_boruta.run_boruta(input_file, iteration, depth, output_folder)
+
+
 
 
 
