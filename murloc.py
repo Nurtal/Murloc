@@ -24,6 +24,20 @@ def run_feature_selection(input_file):
 
 
 
+def run_classification(input_file, output_folder):
+    """
+    """
+
+    ## importation
+    import clf_lda
+
+    ## parameters
+
+    ## ask user which algorithm to use
+
+    ## LDA Case ##--------------------------------------------------------------
+    #-> run lda
+    clf_lda.run_lda_classifier(input_file, output_folder)
 
 
 def run(input_file, output_folder, action):
@@ -53,7 +67,7 @@ def run(input_file, output_folder, action):
 
         #-> create report
     elif(action == "clf"):
-        pass
+        run_classification(input_file, output_folder)
     elif(action == "fs"):
         run_feature_selection(input_file)
 

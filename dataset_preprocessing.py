@@ -9,15 +9,19 @@ def drop_missing_values(df):
     import numpy as np
 
     ## replace Missing & NA values by np.nan
-    df = df.replace({
-            "MISSING":np.nan,
-            "NA":np.nan,
-            "N/A":np.nan,
-            "nan":np.nan,
-            "NaN":np.nan,
-            "":np.nan,
-            " ":np.nan
-        })
+    ## problem when all scalar are float
+    try:
+        df = df.replace({
+                "MISSING":np.nan,
+                "NA":np.nan,
+                "N/A":np.nan,
+                "nan":np.nan,
+                "NaN":np.nan,
+                "":np.nan,
+                " ":np.nan
+            })
+    except:
+        pass
 
     ## drop np.nan
     df = df.dropna()
