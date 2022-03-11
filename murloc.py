@@ -86,11 +86,22 @@ def display_help():
     print("""
         Work in Progress [PLACEHOLDER]
 
+
+        Idea:
+
+            config :
+                load a txt config file to pick a fs and a clf
+
+            report generator :
+                craft a pdf document from the image and log files generated
+
+
         To implement
             fs:
-                -boruta
+                -boruta -> ok
                 -LDA picker
             -clf:
+                -lda -> ok
                 -ann
                 -xgboosted tree
                 -dpix

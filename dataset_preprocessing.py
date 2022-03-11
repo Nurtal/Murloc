@@ -49,3 +49,40 @@ def rename_variables(df):
 
     ## return dataframe
     return df
+
+
+def craft_selected_variable_dataset(input_file, feature_file, work_folder):
+    """
+    """
+
+    ## importation
+    import pandas as pd
+
+    ## load original dataset
+    df = pd.read_csv(input_file)
+    df = rename_variables(df)
+
+    ## load features
+    df_features = pd.read_csv(feature_file)
+    feature_list = ['ID']
+    for feature in list(df_features['FEATURE']):
+        feature_list.append(feature)
+    feature_list.append('LABEL')
+
+    ## select only loaded features
+    df = df[feature_list]
+
+    ## craft new dataset file name
+    output_file_name = input_file.split("/")
+    output_file_name = output_file_name[-1]
+    feature_file_name = feature_file.split("/")
+    feature_file_name = feature_file_name[-1]
+    output_file_name = output_file_name.replace(".csv", "_selected_features_from_")
+    output_file_name = output_file_name+feature_file_name
+    output_file_name = work_folder+"/"+output_file_name
+
+    ## save new dataset
+    df.to_csv(output_file_name, index=False)
+
+    ## return save file name
+    return output_file_name

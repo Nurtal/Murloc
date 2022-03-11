@@ -2,10 +2,7 @@
 
 def run_lda_classifier(input_file, work_folder):
     """
-
     TODO:
-        - save evaluation results
-        - generate confusion matrix plot
         - generate lda representation
         - save features contributions
     """
@@ -18,9 +15,13 @@ def run_lda_classifier(input_file, work_folder):
     from sklearn.metrics import accuracy_score
     import dataset_preprocessing
     from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+    import matplotlib.pyplot as plt
+    import seaborn as sn
 
     ## parameters
     lda_save_name = work_folder+"/lda_model.joblib"
+    lda_confusion_save_file = work_folder+"/lda_confusion_matrix.png"
+    log_file_name = work_folder+"/lda_evaluation.log"
 
     ## load file
     df = pd.read_csv(input_file)
@@ -63,6 +64,24 @@ def run_lda_classifier(input_file, work_folder):
 
     ## display results
     print("[+][CLF-LDA] => ACC : "+str(acc)+" %")
+
+    ## create confusion matrix figure
+    df_cm = pd.DataFrame(
+        matrix,
+        index = list(old_label_to_encode.keys()),
+        columns = list(old_label_to_encode.keys())
+    )
+    plt.figure(figsize = (10,7))
+    sn.heatmap(df_cm, annot=True, cmap='Blues')
+    plt.savefig(lda_confusion_save_file)
+    plt.close()
+
+    ## save acc in a log file
+    log_file = open(log_file_name, "w")
+    log_file.write("ACC\n")
+    log_file.write(str(acc)+"\n")
+    log_file.close()
+
 
 
 
