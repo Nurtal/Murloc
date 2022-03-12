@@ -60,10 +60,18 @@ def craft_selected_variable_dataset(input_file, feature_file, work_folder):
 
     ## importation
     import pandas as pd
+    import os
+
+    ## parameters
+    folder_separator = "/"
 
     ## load original dataset
     df = pd.read_csv(input_file)
     df = rename_variables(df)
+
+    ## check if we are running on a fucking windows machine
+    if(os.name == 'nt'):
+        folder_separator = "\\"
 
     ## load features
     df_features = pd.read_csv(feature_file)
@@ -76,13 +84,13 @@ def craft_selected_variable_dataset(input_file, feature_file, work_folder):
     df = df[feature_list]
 
     ## craft new dataset file name
-    output_file_name = input_file.split("/")
+    output_file_name = input_file.split(folder_separator)
     output_file_name = output_file_name[-1]
-    feature_file_name = feature_file.split("/")
+    feature_file_name = feature_file.split(folder_separator)
     feature_file_name = feature_file_name[-1]
     output_file_name = output_file_name.replace(".csv", "_selected_features_from_")
     output_file_name = output_file_name+feature_file_name
-    output_file_name = work_folder+"/"+output_file_name
+    output_file_name = work_folder+folder_separator+output_file_name
 
     ## save new dataset
     df.to_csv(output_file_name, index=False)

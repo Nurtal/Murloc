@@ -98,8 +98,14 @@ def run_instruction(instruction_list, input_file, output_folder):
     import fs_boruta
     import clf_lda
     import dataset_preprocessing
+    import os
 
     ## parameters
+    folder_separator = "/"
+
+    ## check if we are running on a fucking windows machine
+    if(os.name == 'nt'):
+        folder_separator = "\\"
 
     ## loop over instruction
     for instruction in instruction_list:
@@ -114,9 +120,9 @@ def run_instruction(instruction_list, input_file, output_folder):
             if(algorithm == "boruta"):
 
                 # -> default parameters
-                iteration = 30
+                iteration = 300
                 depth = 5
-                feature_file = output_folder+"/boruta_selected_features.csv"
+                feature_file = output_folder+folder_separator+"boruta_selected_features.csv"
 
                 #-> run boruta
                 fs_boruta.run_boruta(input_file, iteration, depth, output_folder)
