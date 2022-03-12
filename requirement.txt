@@ -2,3 +2,4 @@ pandas
 boruta
 sklearn
 numpy
+fpdf
