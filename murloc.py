@@ -40,6 +40,105 @@ def run_classification(input_file, output_folder):
     clf_lda.run_lda_classifier(input_file, output_folder)
 
 
+
+
+def parse_configuration_file(config_file):
+    """
+    Not tested
+    read a config file and return the list of extracted instruction
+
+    config file format:
+
+        action-type_algorithm
+
+    """
+
+    ## parameters
+    instruction_list = []
+    action_to_available_algorithm = {}
+    action_to_available_algorithm["fs"] = ["boruta"]
+    action_to_available_algorithm["clf"] = ["lda"]
+
+    ## read config file
+    config_data = open(config_file, "r")
+    for line in config_data:
+        line = line.rstrip()
+        line_in_array = line.split("_")
+
+        if(len(line_in_array) > 0):
+            action_type = line_in_array[0]
+            algorithm = line_in_array[1]
+
+            if(action_type in list(action_to_available_algorithm.keys())):
+                if(algorithm in action_to_available_algorithm[action_type]):
+                    instruction_list.append(line)
+                else:
+                    print("[!][CONFIG-PARSER] => Can't find algorithm "+str(algorithm))
+            else:
+                print("[!][CONFIG-PARSER] => Can't find action "+str(action_type))
+        else:
+            print("[!][CONFIG-PARSER] => Can't parse line "+str(line))
+
+    ## close config file
+    config_data.close()
+
+    ## return list of action
+    return instruction_list
+
+
+
+
+def run_instruction(instruction_list, input_file, output_folder):
+    """
+    Not tested
+    run with a list of instruction
+    """
+
+    ## importation
+    import fs_boruta
+    import clf_lda
+    import dataset_preprocessing
+
+    ## parameters
+
+    ## loop over instruction
+    for instruction in instruction_list:
+
+        #-> parse instruction
+        instruction = instruction.split("_")
+        action = instruction[0]
+        algorithm = instruction[1]
+
+        #-> deal with feature selection
+        if(action == "fs"):
+            if(algorithm == "boruta"):
+
+                # -> default parameters
+                iteration = 30
+                depth = 5
+                feature_file = output_folder+"/boruta_selected_features.csv"
+
+                #-> run boruta
+                fs_boruta.run_boruta(input_file, iteration, depth, output_folder)
+
+                #-> craft dataset with selected variables
+                input_file = dataset_preprocessing.craft_selected_variable_dataset(input_file, feature_file, output_folder)
+
+        #-> deal with classification
+        elif(action == "clf"):
+            if(algorithm == "lda"):
+
+                #-> run lda
+                clf_lda.run_lda_classifier(input_file, output_folder)
+
+
+
+
+
+
+
+
+
 def run(input_file, output_folder, action):
     """
     """
@@ -70,6 +169,9 @@ def run(input_file, output_folder, action):
         run_classification(input_file, output_folder)
     elif(action == "fs"):
         run_feature_selection(input_file)
+    elif(os.path.isfile(action)):
+        instruction_list = parse_configuration_file(action)
+        run_instruction(instruction_list, input_file, output_folder)
 
 
 
@@ -91,6 +193,7 @@ def display_help():
 
             config :
                 load a txt config file to pick a fs and a clf
+                -> load this file as an alternative argument for the action arg
 
             report generator :
                 craft a pdf document from the image and log files generated

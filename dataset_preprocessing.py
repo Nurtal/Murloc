@@ -53,6 +53,9 @@ def rename_variables(df):
 
 def craft_selected_variable_dataset(input_file, feature_file, work_folder):
     """
+
+    TODO : handle windows env (with stupid \\ root system instead of /)
+
     """
 
     ## importation
