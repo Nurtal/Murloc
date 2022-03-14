@@ -17,11 +17,19 @@ def run_lda_classifier(input_file, work_folder):
     from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
     import matplotlib.pyplot as plt
     import seaborn as sn
+    import os
 
     ## parameters
-    lda_save_name = work_folder+"/lda_model.joblib"
-    lda_confusion_save_file = work_folder+"/lda_confusion_matrix.png"
-    log_file_name = work_folder+"/lda_evaluation.log"
+    lda_save_name = work_folder+"/lda_log/lda_model.joblib"
+    lda_confusion_save_file = work_folder+"/lda_log/lda_confusion_matrix.png"
+    log_file_name = work_folder+"/lda_log/lda_evaluation.log"
+
+    ## clean & prepare output folde
+    if(not os.path.isdir(work_folder+"/lda_log")):
+        os.mkdir(work_folder+"/lda_log")
+    else:
+        shutil.rmtree(work_folder+"/lda_log")
+        os.mkdir(work_folder+"/lda_log")
 
     ## load file
     df = pd.read_csv(input_file)

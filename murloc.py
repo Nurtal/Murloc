@@ -56,7 +56,7 @@ def parse_configuration_file(config_file):
     ## parameters
     instruction_list = []
     action_to_available_algorithm = {}
-    action_to_available_algorithm["fs"] = ["boruta"]
+    action_to_available_algorithm["fs"] = ["boruta", "picker"]
     action_to_available_algorithm["clf"] = ["lda"]
 
     ## read config file
@@ -96,6 +96,7 @@ def run_instruction(instruction_list, input_file, output_folder):
 
     ## importation
     import fs_boruta
+    import fs_picker
     import clf_lda
     import dataset_preprocessing
     import os
@@ -122,13 +123,33 @@ def run_instruction(instruction_list, input_file, output_folder):
                 # -> default parameters
                 iteration = 300
                 depth = 5
-                feature_file = output_folder+folder_separator+"boruta_selected_features.csv"
+                feature_file = output_folder+folder_separator+"boruta_log"+folder_separator+"boruta_selected_features.csv"
 
                 #-> run boruta
                 fs_boruta.run_boruta(input_file, iteration, depth, output_folder)
 
                 #-> craft dataset with selected variables
                 input_file = dataset_preprocessing.craft_selected_variable_dataset(input_file, feature_file, output_folder)
+
+            if(algorithm == "picker"):
+
+                #-> default parameters
+                min_features = 10
+                step = 1
+                feature_file = output_folder+folder_separator+"picker_log"+folder_separator+"picker_selected_features.csv"
+
+                #-> run picker
+                fs_picker.run_picker(input_file, output_folder, min_features, step)
+
+                #-> generate graphics
+                fs_picker.plot_acc(output_folder)
+
+                #-> save best features
+                fs_picker.hunt_best_conf(output_folder)
+
+                #-> craft dataset with selected variables
+                input_file = dataset_preprocessing.craft_selected_variable_dataset(input_file, feature_file, output_folder)
+
 
         #-> deal with classification
         elif(action == "clf"):
@@ -151,6 +172,7 @@ def run(input_file, output_folder, action):
 
     ## importation
     import os
+    import report_generator
 
     ## parameters
 
@@ -178,6 +200,10 @@ def run(input_file, output_folder, action):
     elif(os.path.isfile(action)):
         instruction_list = parse_configuration_file(action)
         run_instruction(instruction_list, input_file, output_folder)
+
+
+    ## create report
+    report_generator.create_report(input_file, output_folder)
 
 
 

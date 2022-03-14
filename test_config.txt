@@ -1,2 +1,2 @@
-fs_boruta
+fs_picker
 clf_lda

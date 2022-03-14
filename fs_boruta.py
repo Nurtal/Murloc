@@ -8,6 +8,15 @@ def run_boruta(dataset, iteration, depth, output_folder):
     from sklearn.ensemble import RandomForestClassifier
     from boruta import BorutaPy
     import dataset_preprocessing
+    import os
+    import shutil
+
+    ## clean & prepare output folde
+    if(not os.path.isdir(output_folder+"/boruta_log")):
+        os.mkdir(output_folder+"/boruta_log")
+    else:
+        shutil.rmtree(output_folder+"/boruta_log")
+        os.mkdir(output_folder+"/boruta_log")
 
     ## load file
     df = pd.read_csv(dataset)
@@ -58,7 +67,7 @@ def run_boruta(dataset, iteration, depth, output_folder):
         final_features.append(features[x])
 
     ## craft feature output file
-    output_filename = output_folder+"/boruta_selected_features.csv"
+    output_filename = output_folder+"/boruta_log/boruta_selected_features.csv"
     output_dataset = open(output_filename, "w")
     output_dataset.write("FEATURE\n")
     for final_f in final_features:

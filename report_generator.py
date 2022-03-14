@@ -1,45 +1,114 @@
 
 
-def create_report(output_folder):
+def create_report(input_file, output_folder):
     """
     """
 
     ## importation
-    from fpdf import FPDF
+    from pylatex import Document, Section, Subsection, Table, Math, TikZ, Axis, Plot, Figure, Package
+    from pylatex.utils import italic, escape_latex
     import os
+    import pandas as pd
 
     ## parameters
-    folder_separator = "/"
+    pdf_file_report = output_folder+"/report"
 
-    ## check if we are running on a fucking windows machine
-    if(os.name == 'nt'):
-        folder_separator = "\\"
-
-    ## define pdf output file name
-    report_file_name = output_folder+folder_separator+"report.pdf"
-
-    ## init pdf
-    class PDF(FPDF):
-        pass
-
-    pdf = PDF(orientation='P', unit='mm', format='A4')
-    pdf.add_page()
-    pdf.output(report_file_name,'F')
-
-    ## hunt feature selection data
-    #-> get number of original features
-    #-> get number of feature selected by boruta (if file exist)
-
-    ## hunt classification data
-    #-> deal with LDA (test if lda results are presents)
-    #-> extract acc
-    #-> extract confusion matrix
-
-    ## sign
-    pdf.set_author('Murloc')
+    ## init document
+    doc = Document()
+    doc.packages.append(
+        Package(
+            'geometry',
+            options=['tmargin=1cm','lmargin=1cm']
+        )
+    )
 
 
+    ## display something
+    print("[+][REPORT-GENERATOR] => Running Latex compilation ...")
+
+    ## Original dataset
+    with doc.create(Section('Original dataset')):
+
+        #-> plot dimension
+        df = pd.read_csv(input_file)
+        doc.append(str(df.shape[1])+" features in the original dataset\n")
+        doc.append(str(df.shape[0])+" observations in the original dataset\n")
+
+    ## Feature Selection
+    with doc.create(Section('Feature Selection')):
+
+        #-> deal with boruta
+        if(os.path.isdir(output_folder+"/boruta_log")):
+            with doc.create(Subsection('Boruta')):
+
+                #-> hunt number of features extracted
+                df = pd.read_csv(output_folder+"/boruta_log/boruta_selected_features.csv")
+                nb_features_selected = len(list(df['FEATURE']))
+                doc.append(str(nb_features_selected)+" features extracted by Boruta")
+
+        #-> deal with picker
+        if(os.path.isdir(output_folder+"/picker_log")):
+            with doc.create(Subsection('Picker')):
+
+                #-> hunt number of features extracted
+                df = pd.read_csv(output_folder+"/picker_log/picker_selected_features.csv")
+                nb_features_selected = len(list(df['FEATURE']))
+                doc.append(str(nb_features_selected)+" features extracted by Picker")
+
+                #-> insert acc figure
+                with doc.create(Figure(position='h!')) as meta_fig:
+                    meta_fig.add_image(output_folder+"/picker_log/picker_exploration.png", width='350px')
+
+    ## Clacification
+    with doc.create(Section('Classifier')):
+
+        #-> deal with lda
+        if(os.path.isdir(output_folder+"/lda_log")):
+            with doc.create(Subsection('Linear Discriminant analysis')):
+
+                #-> hunt acc
+                acc_log = open(output_folder+"/lda_log/lda_evaluation.log", "r")
+                cmpt = 0
+                acc = "NA"
+                for line in acc_log:
+                    line = line.rstrip()
+                    if(cmpt == 1):
+                        acc = line
+                    cmpt+=1
+                acc_log.close()
+                doc.append("ACC  = "+str(acc)+" %")
+
+            #-> insert confusion matrix figure
+            with doc.create(Figure(position='h!')) as meta_fig:
+                meta_fig.add_image(output_folder+"/lda_log/lda_confusion_matrix.png", width='550px')
 
 
 
-create_report("test")
+
+    ## generate pdf
+    doc.generate_pdf(pdf_file_report)
+
+    ## delete compimation file
+    compilation_file_list = [
+        pdf_file_report+".aux",
+        pdf_file_report+".fdb_latexmk",
+        pdf_file_report+".log",
+        pdf_file_report+".tex",
+        pdf_file_report+".fls"
+    ]
+    for tf in compilation_file_list:
+        try:
+            os.remove(tf)
+        except:
+            pass
+
+    ## display something
+    print("[+][REPORT-GENERATOR] => Report Generated")
+
+
+
+
+
+
+
+#create_report("D:\\toy_dataset.csv", "D:\\murloc_output_test4")
