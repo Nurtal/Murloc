@@ -5,10 +5,11 @@ def create_report(input_file, output_folder):
     """
 
     ## importation
-    from pylatex import Document, Section, Subsection, Table, Math, TikZ, Axis, Plot, Figure, Package
+    from pylatex import Document, Section, Subsection, Table, Math, TikZ, Axis, Plot, Figure, Package, Tabular
     from pylatex.utils import italic, escape_latex
     import os
     import pandas as pd
+    import glob
 
     ## parameters
     pdf_file_report = output_folder+"/report"
@@ -81,6 +82,34 @@ def create_report(input_file, output_folder):
             #-> insert confusion matrix figure
             with doc.create(Figure(position='h!')) as meta_fig:
                 meta_fig.add_image(output_folder+"/lda_log/lda_confusion_matrix.png", width='550px')
+
+
+    ## Annotation
+    if(os.path.isdir(output_folder+"/annotation_log")):
+        with doc.create(Section('Annotation')):
+
+            ## check if selected pathway file exist
+            if(os.path.isfile(output_folder+"/annotation_log/selected_pathways.csv")):
+
+                with doc.create(Tabular('c|c')) as table:
+                    table.add_row(("PATHWAY","ADJUSTED-PVAL"))
+                    table.add_hline()
+
+                    #-> extract pathways
+                    df_pathway = pd.read_csv(output_folder+"/annotation_log/selected_pathways.csv")
+                    for index, row in df_pathway.iterrows():
+                        pathway = row['PATHWAY']
+                        pvalue = row["ADJUSTED-PVAL"]
+                        table.add_row((pathway,pvalue))
+
+                for fig_file in glob.glob(output_folder+"/annotation_log/*_zscore.png"):
+                    with doc.create(Figure(position='h!')) as meta_fig:
+                        meta_fig.add_image(fig_file, width='550px')
+
+
+            else:
+                doc.append("No Pathway detected")
+
 
 
 

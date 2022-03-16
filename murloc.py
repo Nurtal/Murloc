@@ -51,6 +51,10 @@ def parse_configuration_file(config_file):
 
         action-type_algorithm
 
+
+    -> annotation should be written :
+        "annotation_KEGG-2016" in the config file
+
     """
 
     ## parameters
@@ -58,6 +62,7 @@ def parse_configuration_file(config_file):
     action_to_available_algorithm = {}
     action_to_available_algorithm["fs"] = ["boruta", "picker"]
     action_to_available_algorithm["clf"] = ["lda"]
+    action_to_available_algorithm["annotation"] = ["KEGG-2016"]
 
     ## read config file
     config_data = open(config_file, "r")
@@ -99,10 +104,14 @@ def run_instruction(instruction_list, input_file, output_folder):
     import fs_picker
     import clf_lda
     import dataset_preprocessing
+    import annotation_runner
     import os
+    import shutil
 
     ## parameters
     folder_separator = "/"
+    boruta_used = False
+    picker_used = False
 
     ## check if we are running on a fucking windows machine
     if(os.name == 'nt'):
@@ -131,6 +140,10 @@ def run_instruction(instruction_list, input_file, output_folder):
                 #-> craft dataset with selected variables
                 input_file = dataset_preprocessing.craft_selected_variable_dataset(input_file, feature_file, output_folder)
 
+                #-> update workflow parameters
+                boruta_used = True
+                boruta_input_file = input_file
+
             if(algorithm == "picker"):
 
                 #-> default parameters
@@ -150,6 +163,10 @@ def run_instruction(instruction_list, input_file, output_folder):
                 #-> craft dataset with selected variables
                 input_file = dataset_preprocessing.craft_selected_variable_dataset(input_file, feature_file, output_folder)
 
+                #-> update workflow parameters
+                picker_used = True
+                picker_input_file = input_file
+
 
         #-> deal with classification
         elif(action == "clf"):
@@ -157,6 +174,19 @@ def run_instruction(instruction_list, input_file, output_folder):
 
                 #-> run lda
                 clf_lda.run_lda_classifier(input_file, output_folder)
+
+        #-> deal with annotation
+        elif(action == "annotation"):
+
+            if(boruta_used and not picker_used):
+                feature_file = output_folder+folder_separator+"boruta_log"+folder_separator+"boruta_selected_features.csv"
+                annotation_runner.run_annotation(boruta_input_file, feature_file, output_folder)
+            elif(not boruta_used and picker_used):
+                feature_file = output_folder+folder_separator+"picker_log"+folder_separator+"picker_selected_features.csv"
+                annotation_runner.run_annotation(picker_input_file, feature_file, output_folder)
+            elif(boruta_used and picker_used):
+                print("[!][ANNOTATION] => annotation for all fs technique not implemented yet")
+                print("[!][ANNOTATION] => can't run annotation")
 
 
 
@@ -234,7 +264,7 @@ def display_help():
         To implement
             fs:
                 -boruta -> ok
-                -LDA picker
+                -LDA picker -> ok
             -clf:
                 -lda -> ok
                 -ann
@@ -248,6 +278,8 @@ def display_help():
             -fs : feature selection
             -clf : classifier
             -brute : let me do the work for you
+
+            TODO : add annotation action
     """)
 
 

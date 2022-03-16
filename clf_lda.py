@@ -18,6 +18,7 @@ def run_lda_classifier(input_file, work_folder):
     import matplotlib.pyplot as plt
     import seaborn as sn
     import os
+    import shutil
 
     ## parameters
     lda_save_name = work_folder+"/lda_log/lda_model.joblib"

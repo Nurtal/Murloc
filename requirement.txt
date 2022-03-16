@@ -3,3 +3,4 @@ boruta
 sklearn
 numpy
 pylatex
+gseapy
