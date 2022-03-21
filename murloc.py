@@ -61,7 +61,7 @@ def parse_configuration_file(config_file):
     instruction_list = []
     action_to_available_algorithm = {}
     action_to_available_algorithm["fs"] = ["boruta", "picker"]
-    action_to_available_algorithm["clf"] = ["lda"]
+    action_to_available_algorithm["clf"] = ["lda", "rf"]
     action_to_available_algorithm["annotation"] = ["KEGG-2016"]
 
     ## read config file
@@ -103,6 +103,7 @@ def run_instruction(instruction_list, input_file, output_folder):
     import fs_boruta
     import fs_picker
     import clf_lda
+    import clf_rf
     import dataset_preprocessing
     import annotation_runner
     import os
@@ -174,6 +175,12 @@ def run_instruction(instruction_list, input_file, output_folder):
 
                 #-> run lda
                 clf_lda.run_lda_classifier(input_file, output_folder)
+
+
+            if(algorithm == "rf"):
+
+                #-> run random forest
+                clf_rf.run_rf_classifier(input_file, output_folder)
 
         #-> deal with annotation
         elif(action == "annotation"):

@@ -1,6 +1,7 @@
 
 def run_picker(data_file, output_folder, min_features, step):
     """
+    Can be very long for some dataset (independant of nb of features & observations)
     """
 
     # importation
@@ -220,3 +221,4 @@ run_picker("D:\\toy_dataset.csv", "D:\\murloc_output_test", 240, 2)
 plot_acc("D:\\murloc_output_test")
 hunt_best_conf("D:\\murloc_output_test")
 """
+#run_picker("../SSA/dataset/33_gene_sig_MCTD_classification.csv", "../misc/murloc_test6", 15, 1)

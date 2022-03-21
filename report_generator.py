@@ -83,6 +83,26 @@ def create_report(input_file, output_folder):
             with doc.create(Figure(position='h!')) as meta_fig:
                 meta_fig.add_image(output_folder+"/lda_log/lda_confusion_matrix.png", width='550px')
 
+        #-> deal with random forest
+        if(os.path.isdir(output_folder+"/rf_log")):
+            with doc.create(Subsection('Random Forest')):
+
+                #-> hunt acc
+                acc_log = open(output_folder+"/rf_log/rf_evaluation.log", "r")
+                cmpt = 0
+                acc = "NA"
+                for line in acc_log:
+                    line = line.rstrip()
+                    if(cmpt == 1):
+                        acc = line
+                    cmpt+=1
+                acc_log.close()
+                doc.append("ACC  = "+str(acc)+" %")
+
+            #-> insert confusion matrix figure
+            with doc.create(Figure(position='h!')) as meta_fig:
+                meta_fig.add_image(output_folder+"/rf_log/rf_confusion_matrix.png", width='550px')
+
 
     ## Annotation
     if(os.path.isdir(output_folder+"/annotation_log")):
@@ -140,4 +160,6 @@ def create_report(input_file, output_folder):
 
 
 
+
 #create_report("D:\\toy_dataset.csv", "D:\\murloc_output_test4")
+#create_report("/home/bran/Workspace/SSA/dataset/33_gene_sig_MCTD_classification.csv", "/home/bran/Workspace/misc/murloc_test")
