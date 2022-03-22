@@ -3,7 +3,7 @@
 
 
 
-def run_annotation(input_file, feature_file, output_folder):
+def run_annotation(input_file, output_folder):
     """
     """
 
@@ -29,8 +29,11 @@ def run_annotation(input_file, feature_file, output_folder):
         os.mkdir(output_folder+"/annotation_log")
 
     ## load genes names
-    df_genes = pd.read_csv(feature_file)
-    gene_list = list(df_genes['FEATURE'])
+    df_genes = pd.read_csv(input_file)
+    gene_list = []
+    for elt in list(df_genes.keys()):
+        if(elt not in ['ID', 'LABEL']):
+            gene_list.append(elt)
 
     ## run annotation
     try:

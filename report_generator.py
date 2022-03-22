@@ -5,7 +5,7 @@ def create_report(input_file, output_folder):
     """
 
     ## importation
-    from pylatex import Document, Section, Subsection, Table, Math, TikZ, Axis, Plot, Figure, Package, Tabular
+    from pylatex import Document, Section, Subsection, Table, Math, TikZ, Axis, Plot, Figure, Package, Tabular, Itemize
     from pylatex.utils import italic, escape_latex
     import os
     import pandas as pd
@@ -34,6 +34,19 @@ def create_report(input_file, output_folder):
         df = pd.read_csv(input_file)
         doc.append(str(df.shape[1])+" features in the original dataset\n")
         doc.append(str(df.shape[0])+" observations in the original dataset\n")
+
+        #-> extract targets
+        target_list = []
+        for elt in list(df['LABEL']):
+            if(elt not in target_list):
+                target_list.append(elt)
+
+        #-> plot targets
+        doc.append(str(len(target_list))+" targets extracted :\n")
+        with doc.create(Itemize()) as itemize:
+            for target in target_list:
+                itemize.add_item(target)
+
 
     ## Feature Selection
     with doc.create(Section('Feature Selection')):
@@ -162,4 +175,4 @@ def create_report(input_file, output_folder):
 
 
 #create_report("D:\\toy_dataset.csv", "D:\\murloc_output_test4")
-#create_report("/home/bran/Workspace/SSA/dataset/33_gene_sig_MCTD_classification.csv", "/home/bran/Workspace/misc/murloc_test")
+create_report("/home/bran/Workspace/SSA/dataset/33_gene_sig_MCTD_classification.csv", "/home/bran/Workspace/misc/murloc_test")

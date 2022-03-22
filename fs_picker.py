@@ -97,7 +97,8 @@ def run_picker(data_file, output_folder, min_features, step):
         model = LinearDiscriminantAnalysis()
 
         # define model evaluation method
-        cv = RepeatedStratifiedKFold(n_splits=10, n_repeats=5, random_state=1)
+        ## TODO : automatically assigned best params for cv
+        cv = RepeatedStratifiedKFold(n_splits=3, n_repeats=5, random_state=1)
 
         # define grid
         grid = dict()

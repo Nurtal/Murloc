@@ -16,9 +16,10 @@ def run_rf_classifier(input_file, work_folder):
     from sklearn.metrics import accuracy_score
     import matplotlib.pyplot as plt
     import seaborn as sn
+    from sklearn.model_selection import RandomizedSearchCV
+    import numpy as np
 
     ## parameters
-    max_depth = 5
     rf_save_name = work_folder+"/rf_log/rf_model.joblib"
     rf_confusion_save_file = work_folder+"/rf_log/rf_confusion_matrix.png"
     log_file_name = work_folder+"/rf_log/rf_evaluation.log"
@@ -56,9 +57,45 @@ def run_rf_classifier(input_file, work_folder):
     ## split into train & validation
     X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.33, random_state=42)
 
-    ## run LDA
-    clf = RandomForestClassifier(max_depth=max_depth)
+    ## init model
+    rf = RandomForestClassifier()
+
+    ## prepare for hyper param
+    #-> Number of trees in random forest
+    n_estimators = [int(x) for x in np.linspace(start = 5, stop = 2000, num = 5)]
+    #-> Number of features to consider at every split
+    max_features = ['auto', 'sqrt']
+
+    #-> Maximum number of levels in tree
+    max_depth = [int(x) for x in np.linspace(3, 110, num = 5)]
+    max_depth.append(None)
+
+    #-> Minimum number of samples required to split a node
+    min_samples_split = [2, 5, 10]
+
+    #-> Minimum number of samples required at each leaf node
+    min_samples_leaf = [1, 2, 4]
+
+    #-> Method of selecting samples for training each tree
+    bootstrap = [True, False]
+
+    #-> Create the random grid
+    random_grid = {
+        'n_estimators': n_estimators,
+        'max_features': max_features,
+        'max_depth': max_depth,
+        'min_samples_split': min_samples_split,
+        'min_samples_leaf': min_samples_leaf,
+        'bootstrap': bootstrap
+    }
+
+    clf = RandomizedSearchCV(estimator = rf, param_distributions = random_grid, n_iter = 100, cv = 3, verbose=2, random_state=42, n_jobs = -1)
+
+    # Fit the random search model
     clf.fit(X_train, y_train)
+
+    ## pick the best
+    clf = clf.best_estimator_
 
     ## save model
     dump(clf, rf_save_name)

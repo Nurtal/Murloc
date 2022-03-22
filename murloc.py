@@ -131,8 +131,8 @@ def run_instruction(instruction_list, input_file, output_folder):
             if(algorithm == "boruta"):
 
                 # -> default parameters
-                iteration = 300
-                depth = 5
+                iteration = 700
+                depth = 10
                 feature_file = output_folder+folder_separator+"boruta_log"+folder_separator+"boruta_selected_features.csv"
 
                 #-> run boruta
@@ -186,14 +186,14 @@ def run_instruction(instruction_list, input_file, output_folder):
         elif(action == "annotation"):
 
             if(boruta_used and not picker_used):
-                feature_file = output_folder+folder_separator+"boruta_log"+folder_separator+"boruta_selected_features.csv"
-                annotation_runner.run_annotation(boruta_input_file, feature_file, output_folder)
+                annotation_runner.run_annotation(boruta_input_file, output_folder)
             elif(not boruta_used and picker_used):
-                feature_file = output_folder+folder_separator+"picker_log"+folder_separator+"picker_selected_features.csv"
-                annotation_runner.run_annotation(picker_input_file, feature_file, output_folder)
+                annotation_runner.run_annotation(picker_input_file, output_folder)
             elif(boruta_used and picker_used):
                 print("[!][ANNOTATION] => annotation for all fs technique not implemented yet")
                 print("[!][ANNOTATION] => can't run annotation")
+            elif(not boruta_used and not picker_used):
+                annotation_runner.run_annotation(input_file, output_folder)
 
 
 
