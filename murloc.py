@@ -61,8 +61,8 @@ def parse_configuration_file(config_file):
     instruction_list = []
     action_to_available_algorithm = {}
     action_to_available_algorithm["fs"] = ["boruta", "picker"]
-    action_to_available_algorithm["clf"] = ["lda", "rf"]
-    action_to_available_algorithm["annotation"] = ["KEGG-2016"]
+    action_to_available_algorithm["clf"] = ["lda", "rf", "logistic"]
+    action_to_available_algorithm["annotation"] = ["KEGG-2016", 'REACTOME']
 
     ## read config file
     config_data = open(config_file, "r")
@@ -104,10 +104,12 @@ def run_instruction(instruction_list, input_file, output_folder):
     import fs_picker
     import clf_lda
     import clf_rf
+    import clf_logistic
     import dataset_preprocessing
     import annotation_runner
     import os
     import shutil
+
 
     ## parameters
     folder_separator = "/"
@@ -132,7 +134,7 @@ def run_instruction(instruction_list, input_file, output_folder):
 
                 # -> default parameters
                 iteration = 700
-                depth = 10
+                depth = 5
                 feature_file = output_folder+folder_separator+"boruta_log"+folder_separator+"boruta_selected_features.csv"
 
                 #-> run boruta
@@ -182,18 +184,38 @@ def run_instruction(instruction_list, input_file, output_folder):
                 #-> run random forest
                 clf_rf.run_rf_classifier(input_file, output_folder)
 
+            if(algorithm == "logistic"):
+
+                #-> run logistic
+                clf_logistic.run_logistic_regression(input_file, output_folder)
+
         #-> deal with annotation
         elif(action == "annotation"):
 
-            if(boruta_used and not picker_used):
-                annotation_runner.run_annotation(boruta_input_file, output_folder)
-            elif(not boruta_used and picker_used):
-                annotation_runner.run_annotation(picker_input_file, output_folder)
-            elif(boruta_used and picker_used):
-                print("[!][ANNOTATION] => annotation for all fs technique not implemented yet")
-                print("[!][ANNOTATION] => can't run annotation")
-            elif(not boruta_used and not picker_used):
-                annotation_runner.run_annotation(input_file, output_folder)
+            if(algorithm == "KEGG-2016"):
+
+                if(boruta_used and not picker_used):
+                    annotation_runner.run_annotation(boruta_input_file, output_folder)
+                elif(not boruta_used and picker_used):
+                    annotation_runner.run_annotation(picker_input_file, output_folder)
+                elif(boruta_used and picker_used):
+                    print("[!][ANNOTATION] => annotation for all fs technique not implemented yet")
+                    print("[!][ANNOTATION] => can't run annotation")
+                elif(not boruta_used and not picker_used):
+                    annotation_runner.run_annotation(input_file, output_folder)
+
+            if(algorithm == "REACTOME"):
+
+                if(boruta_used and not picker_used):
+                    annotation_runner.run_reactome_annotation(boruta_input_file, output_folder)
+                elif(not boruta_used and picker_used):
+                    annotation_runner.run_reactome_annotation(picker_input_file, output_folder)
+                elif(boruta_used and picker_used):
+                    print("[!][ANNOTATION] => annotation for all fs technique not implemented yet")
+                    print("[!][ANNOTATION] => can't run annotation")
+                elif(not boruta_used and not picker_used):
+                    annotation_runner.run_reactome_annotation(input_file, output_folder)
+
 
 
 

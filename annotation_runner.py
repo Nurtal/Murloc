@@ -62,7 +62,7 @@ def run_annotation(input_file, output_folder):
 
     ## save results
     if(len(selected_pathway) > 0):
-        print("[*][ANNOTATION] >> TARGET HITS <<")
+        print("[*][ANNOTATION][KEGG] >> TARGET HITS <<")
         output_data = open(output_file_selected, "w")
         output_data.write("PATHWAY,ADJUSTED-PVAL\n")
         for pathway in pathway_to_pval.keys():
@@ -88,11 +88,84 @@ def run_annotation(input_file, output_folder):
 
 
     else:
-        print("[+][ANNOTATION] => Nothing Found")
+        print("[+][ANNOTATION][KEGG] => Nothing Found")
 
     ## save all annotation results
     df_results.to_csv(output_file_all, index=False)
 
 
 
+
+def run_reactome_annotation(input_file, output_folder):
+    """
+    """
+
+    ## importation
+    from reactome2py import content, analysis
+    import pprint
+    import webbrowser
+    import itertools
+    import os
+    import pandas as pd
+
+    ## parameters
+    output_file_selected = output_folder+"/annotation_log/reactome_selected_pathways.csv"
+    pathway_to_pval = {}
+
+    ## load genes names
+    df_genes = pd.read_csv(input_file)
+    markers = ''
+    for elt in list(df_genes.keys()):
+        if(elt not in ['ID', 'LABEL']):
+            markers+=str(elt)+","
+    markers = markers[:-1]
+
+    ## init request
+    result = analysis.identifiers(ids=markers)
+    token = result['summary']['token']
+
+    ## run analysis
+    token_result = analysis.token(
+        token,
+        species='Homo sapiens',
+        page_size='-1',
+        page='-1',
+        sort_by='ENTITIES_FDR',
+        order='ASC',
+        resource='TOTAL',
+        p_value='0.05',
+        include_disease=True,
+        min_entities=None,
+        max_entities=None
+    )
+
+    ## order output
+    for path in token_result['pathways']:
+
+        #-> extract pathname
+        path_name = path['name']
+
+        #-> extract pvalue
+        pval = path['entities']['pValue']
+
+        #-> update structure
+        pathway_to_pval[path_name] = pval
+
+    ## write output dataset
+    if(len(pathway_to_pval.keys()) > 0):
+        print("[*][ANNOTATION][REACTOME] >> TARGET HITS <<")
+        output_data = open(output_file_selected, "w")
+        output_data.write("PATHWAY,PVAL\n")
+        for pathway in pathway_to_pval.keys():
+            output_data.write(str(pathway)+","+str(pathway_to_pval[pathway])+"\n")
+        output_data.close()
+    else:
+        print("[*][ANNOTATION][REACTOME] >> NOTHING FOUND <<")
+
+
+
+
+
 #run_annotation("D:\\murloc_output_test4\\toy_dataset_selected_features_from_boruta_selected_features.csv","D:\\murloc_output_test4\\boruta_log\\boruta_selected_features.csv", "D:\\murloc_output_test4")
+
+#run_reactome_annotation("/home/bran/Workspace/REDSIG/star_baseline/tractiss_rnaseq_star_selected_features_from_boruta_selected_features.csv")

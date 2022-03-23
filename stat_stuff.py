@@ -84,13 +84,16 @@ def plot_zscore(input_file, gene_list, output_file_name):
         'order': list(label_to_stat_list.keys())
     }
 
-    ax = sns.violinplot(x="LABEL", y="Score", data=df_ifn, order=list(label_to_stat_list.keys()))
-    annotator = Annotator(ax, pairs, **plotting_parameters)
-    annotator.set_pvalues(pvalues)
-    annotator.annotate()
-    plt.title(title)
-    plt.savefig(output_file_name)
-    plt.close()
+    try:
+        ax = sns.violinplot(x="LABEL", y="Score", data=df_ifn, order=list(label_to_stat_list.keys()))
+        annotator = Annotator(ax, pairs, **plotting_parameters)
+        annotator.set_pvalues(pvalues)
+        annotator.annotate()
+        plt.title(title)
+        plt.savefig(output_file_name)
+        plt.close()
+    except:
+        pass
 
 
 

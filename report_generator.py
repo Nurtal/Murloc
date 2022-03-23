@@ -117,30 +117,68 @@ def create_report(input_file, output_folder):
                 meta_fig.add_image(output_folder+"/rf_log/rf_confusion_matrix.png", width='550px')
 
 
+        #-> deal with logistic regression
+        if(os.path.isdir(output_folder+"/logistic_log")):
+            with doc.create(Subsection('Logistic Regression')):
+
+                #-> hunt acc
+                acc_log = open(output_folder+"/logistic_log/logistic_evaluation.log", "r")
+                cmpt = 0
+                acc = "NA"
+                for line in acc_log:
+                    line = line.rstrip()
+                    if(cmpt == 1):
+                        acc = line
+                    cmpt+=1
+                acc_log.close()
+                doc.append("ACC  = "+str(acc)+" %")
+
+            #-> insert confusion matrix figure
+            with doc.create(Figure(position='h!')) as meta_fig:
+                meta_fig.add_image(output_folder+"/logistic_log/logistic_confusion_matrix.png", width='550px')
+
+
     ## Annotation
     if(os.path.isdir(output_folder+"/annotation_log")):
         with doc.create(Section('Annotation')):
 
             ## check if selected pathway file exist
             if(os.path.isfile(output_folder+"/annotation_log/selected_pathways.csv")):
+                with doc.create(Subsection('KEGG')):
 
-                with doc.create(Tabular('c|c')) as table:
-                    table.add_row(("PATHWAY","ADJUSTED-PVAL"))
-                    table.add_hline()
+                    with doc.create(Tabular('c|c')) as table:
+                        table.add_row(("PATHWAY","ADJUSTED-PVAL"))
+                        table.add_hline()
 
-                    #-> extract pathways
-                    df_pathway = pd.read_csv(output_folder+"/annotation_log/selected_pathways.csv")
-                    for index, row in df_pathway.iterrows():
-                        pathway = row['PATHWAY']
-                        pvalue = row["ADJUSTED-PVAL"]
-                        table.add_row((pathway,pvalue))
+                        #-> extract pathways
+                        df_pathway = pd.read_csv(output_folder+"/annotation_log/selected_pathways.csv")
+                        for index, row in df_pathway.iterrows():
+                            pathway = row['PATHWAY']
+                            pvalue = row["ADJUSTED-PVAL"]
+                            table.add_row((pathway,pvalue))
 
-                for fig_file in glob.glob(output_folder+"/annotation_log/*_zscore.png"):
-                    with doc.create(Figure(position='h!')) as meta_fig:
-                        meta_fig.add_image(fig_file, width='550px')
+                    for fig_file in glob.glob(output_folder+"/annotation_log/*_zscore.png"):
+                        with doc.create(Figure(position='h!')) as meta_fig:
+                            meta_fig.add_image(fig_file, width='550px')
+
+            ## check if reactome pathway is present
+            if(os.path.isfile(output_folder+"/annotation_log/reactome_selected_pathways.csv")):
+                with doc.create(Subsection('REACTOME')):
+
+                    with doc.create(Tabular('c|c')) as table:
+                        table.add_row(("PATHWAY","PVAL"))
+                        table.add_hline()
+
+                        #-> extract pathways
+                        df_pathway = pd.read_csv(output_folder+"/annotation_log/reactome_selected_pathways.csv")
+                        for index, row in df_pathway.iterrows():
+                            pathway = row['PATHWAY']
+                            pvalue = row["PVAL"]
+                            table.add_row((pathway,pvalue))
 
 
-            else:
+
+            if(not os.path.isfile(output_folder+"/annotation_log/reactome_selected_pathways.csv") and not os.path.isfile(output_folder+"/annotation_log/selected_pathways.csv")):
                 doc.append("No Pathway detected")
 
 
@@ -175,4 +213,4 @@ def create_report(input_file, output_folder):
 
 
 #create_report("D:\\toy_dataset.csv", "D:\\murloc_output_test4")
-create_report("/home/bran/Workspace/SSA/dataset/33_gene_sig_MCTD_classification.csv", "/home/bran/Workspace/misc/murloc_test")
+#create_report("/home/bran/Workspace/SSA/dataset/33_gene_sig_MCTD_classification.csv", "/home/bran/Workspace/misc/murloc_test")
