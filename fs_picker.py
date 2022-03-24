@@ -207,7 +207,8 @@ def hunt_best_conf(output_folder):
     }
 
     ## save best file
-    shutil.copy(best_name_file, output_folder+folder_separator+"picker_log"+folder_separator+"picker_selected_features.csv")
+    if(best_name_file != "NA"):
+        shutil.copy(best_name_file, output_folder+folder_separator+"picker_log"+folder_separator+"picker_selected_features.csv")
 
     ## return data
     return hunt_results

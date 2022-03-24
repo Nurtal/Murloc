@@ -55,12 +55,17 @@ def parse_configuration_file(config_file):
     -> annotation should be written :
         "annotation_KEGG-2016" in the config file
 
+
+
+    boruta-picker : start with boruta, run picker on the features selected by
+    boruta.
+
     """
 
     ## parameters
     instruction_list = []
     action_to_available_algorithm = {}
-    action_to_available_algorithm["fs"] = ["boruta", "picker"]
+    action_to_available_algorithm["fs"] = ["boruta", "picker", "boruta-picker"]
     action_to_available_algorithm["clf"] = ["lda", "rf", "logistic"]
     action_to_available_algorithm["annotation"] = ["KEGG-2016", 'REACTOME']
 
@@ -149,6 +154,42 @@ def run_instruction(instruction_list, input_file, output_folder):
 
             if(algorithm == "picker"):
 
+                #-> default parameters
+                min_features = 10
+                step = 1
+                feature_file = output_folder+folder_separator+"picker_log"+folder_separator+"picker_selected_features.csv"
+
+                #-> run picker
+                fs_picker.run_picker(input_file, output_folder, min_features, step)
+
+                #-> generate graphics
+                fs_picker.plot_acc(output_folder)
+
+                #-> save best features
+                fs_picker.hunt_best_conf(output_folder)
+
+                #-> craft dataset with selected variables
+                input_file = dataset_preprocessing.craft_selected_variable_dataset(input_file, feature_file, output_folder)
+
+                #-> update workflow parameters
+                picker_used = True
+                picker_input_file = input_file
+
+            if(algorithm == "boruta-picker"):
+
+                ## Start with Boruta
+                # -> default parameters
+                iteration = 700
+                depth = 5
+                feature_file = output_folder+folder_separator+"boruta_log"+folder_separator+"boruta_selected_features.csv"
+
+                #-> run boruta
+                fs_boruta.run_boruta(input_file, iteration, depth, output_folder)
+
+                #-> craft dataset with selected variables
+                input_file = dataset_preprocessing.craft_selected_variable_dataset(input_file, feature_file, output_folder)
+
+                ## Follow with picker
                 #-> default parameters
                 min_features = 10
                 step = 1
