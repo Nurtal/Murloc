@@ -185,3 +185,4 @@ def run_univar_test(input_file, feature_file, output_folder):
 
 
 #plot_zscore("d:\\murloc_output_test254\\toy_dataset_selected_features_from_picker_selected_features.csv", ['EXOC6','FAM168B','FAM65B','FBXO10','FBXO38','GNB1','GNG11'], "d:\\test_zscore.png")
+plot_zscore("/home/bran/Workspace/PRECISINV/fatigue/dataset/rnaseq_with_ctrl.csv", ["DPAGT1"], "/home/bran/Workspace/PRECISINV/fatigue/murloc_search_deep/z_score_with_ctrl.png")
