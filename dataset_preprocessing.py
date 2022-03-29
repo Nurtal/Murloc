@@ -23,7 +23,7 @@ def drop_missing_values(df):
     except:
         pass
 
-    ## drop np.nan
+    ## drop missing values
     df = df.dropna()
 
     ## return dataframe

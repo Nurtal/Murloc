@@ -120,11 +120,23 @@ def run_reactome_annotation(input_file, output_folder):
             markers+=str(elt)+","
     markers = markers[:-1]
 
+    print(markers)
+
     ## init request
-    result = analysis.identifiers(ids=markers)
+    result = analysis.identifiers(ids=markers, species='Homo Sapiens')
     token = result['summary']['token']
 
+
     ## run analysis
+    """
+    token_result = analysis.token(
+        token,
+        species='Homo sapiens',
+    )
+    """
+
+    pprint.pprint(result)
+
     token_result = analysis.token(
         token,
         species='Homo sapiens',
@@ -166,6 +178,10 @@ def run_reactome_annotation(input_file, output_folder):
 
 
 
+
+
 #run_annotation("D:\\murloc_output_test4\\toy_dataset_selected_features_from_boruta_selected_features.csv","D:\\murloc_output_test4\\boruta_log\\boruta_selected_features.csv", "D:\\murloc_output_test4")
 
 #run_reactome_annotation("/home/bran/Workspace/REDSIG/star_baseline/tractiss_rnaseq_star_selected_features_from_boruta_selected_features.csv")
+
+#run_reactome_annotation("/home/bran/Workspace/PRECISINV/ccp/murloc_rnaseq/RA/rnaseq_RA_selected_features_from_boruta_selected_features_selected_features_from_picker_selected_features.csv", "/home/bran/Workspace/misc/murloc_test_annotation")

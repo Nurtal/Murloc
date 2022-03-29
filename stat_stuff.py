@@ -27,6 +27,7 @@ def plot_zscore(input_file, gene_list, output_file_name):
 
     ## load dataset
     df = pd.read_csv(input_file)
+    df['LABEL'] = df['LABEL'].astype(str)
 
     ## get label's name
     label_list = []
@@ -54,7 +55,6 @@ def plot_zscore(input_file, gene_list, output_file_name):
         label_to_stat_list[label] = C
 
 
-
     #-> prapare vector for stat test
     stat_results = []
     stat_combination = []
@@ -69,8 +69,6 @@ def plot_zscore(input_file, gene_list, output_file_name):
                     pairs.append((l1,l2))
                     stat_combination.append(combination)
                     stat_combination.append(combination_inv)
-
-
 
     ## run stat test
     pvalues = [result.pvalue for result in stat_results]
@@ -94,6 +92,7 @@ def plot_zscore(input_file, gene_list, output_file_name):
         plt.close()
     except:
         pass
+
 
 
 
@@ -181,8 +180,66 @@ def run_univar_test(input_file, feature_file, output_folder):
     log_file.close()
 
 
+
+
+def generate_z_score_from_reactome_results_file(data_file, reactome_file, output_folder):
+    """
+    """
+
+    ## importation
+    import pandas as pd
+
+    ## parameters
+    pval_treshold = 0.05
+
+    ## load reactome dataset
+    df = pd.read_csv(reactome_file)
+
+    ## loop over pathway
+    for index, row in df.iterrows():
+
+        #-> extract path name
+        path_name = row["Pathway name"]
+
+        #-> extract pval
+        pval = row["Entities pValue"]
+
+        #-> extract genes
+        gene_list = row["Submitted entities found"]
+        gene_list = gene_list.split(";")
+
+        #-> if pval below treshold, generate z plot
+        if(pval <= pval_treshold):
+
+            #-> generate output file name
+            output_file_name = path_name.replace("_", "")
+            output_file_name = output_file_name+".png"
+            output_file_name = output_folder+"/"+output_file_name
+
+            #-> generate graphic
+            plot_zscore(data_file, gene_list, output_file_name)
+
+
+
+
+
 #run_univar_test("D:\\murloc_output_test5\\toy_dataset_selected_features_from_picker_selected_features.csv", "D:\\murloc_output_test5\\picker_log\\picker_selected_features.csv", "D:\\murloc_output_test")
 
 
 #plot_zscore("d:\\murloc_output_test254\\toy_dataset_selected_features_from_picker_selected_features.csv", ['EXOC6','FAM168B','FAM65B','FBXO10','FBXO38','GNB1','GNG11'], "d:\\test_zscore.png")
-plot_zscore("/home/bran/Workspace/PRECISINV/fatigue/dataset/rnaseq_with_ctrl.csv", ["DPAGT1"], "/home/bran/Workspace/PRECISINV/fatigue/murloc_search_deep/z_score_with_ctrl.png")
+#plot_zscore("/home/bran/Workspace/PRECISINV/fatigue/dataset/rnaseq_with_ctrl_paired.csv", ["DPAGT1"], "/home/bran/Workspace/PRECISINV/fatigue/murloc_search_deep/z_score_with_ctrl_paired.png")
+"""
+plot_zscore("/home/bran/Workspace/PRECISINV/ccp/dataset/rnaseq_RA_with_ctrl.csv",
+    ["MET"],
+    "/home/bran/Workspace/PRECISINV/ccp/murloc_rnaseq/RA/MET_with_ctrl.png"
+)
+"""
+
+#generate_z_score_from_reactome_results_file("/home/bran/Workspace/PRECISINV/ccp/dataset/rnaseq_RA_with_ctrl.csv", "/home/bran/Workspace/PRECISINV/ccp/murloc_rnaseq/RA/reactome_manual.csv", "/home/bran/Workspace/PRECISINV/ccp/murloc_rnaseq/RA/")
+"""
+generate_z_score_from_reactome_results_file(
+    "/home/bran/Workspace/PRECISINV/SjS/RESPIRATORY/rnaseq_dataset_selected_features_from_boruta_selected_features_selected_features_from_picker_selected_features.csv",
+    "/home/bran/Workspace/PRECISINV/SjS/RESPIRATORY/reactome_manual.csv",
+    "/home/bran/Workspace/PRECISINV/SjS/RESPIRATORY/"
+)
+"""

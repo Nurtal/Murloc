@@ -1,3 +1,6 @@
-fs_picker
+fs_boruta-picker
+clf_rf
 clf_lda
+clf_logistic
 annotation_KEGG-2016
+annotation_REACTOME
