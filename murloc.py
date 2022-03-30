@@ -41,6 +41,69 @@ def run_classification(input_file, output_folder):
 
 
 
+def run_annotation(output_folder):
+    """
+    """
+
+    ## importation
+    import pandas as pd
+    import os
+    import glob
+    import annotation_runner
+    import stat_stuff
+
+    ## parameters
+    input_file = "NA"
+    reactome_target_file = ["reactome_manual.csv", "manual_reactome.csv"]
+
+    ## check if folder exist
+    if(os.path.isdir(output_folder)):
+
+        ## determine input file
+        #-> check for selected data files
+        best_candidate = 0
+        for candidates_file in glob.glob(output_folder+"/*_selected_features.csv"):
+            candidate = candidates_file.split("selected_features")
+            candidate = len(candidates_file)
+            if(candidate > best_candidate):
+                best_candidate = candidate
+                input_file = candidates_file
+    else:
+        print("[!][ANNOTATION] => can't find folder "+str(output_folder))
+
+    if(os.path.isfile(input_file)):
+
+        ## call KEGG annotation
+        annotation_runner.run_annotation(input_file, output_folder)
+
+        ## call REACTOME annotation
+        annotation_runner.run_reactome_annotation(input_file, output_folder)
+
+        ## craft features used file
+        df = pd.read_csv(input_file)
+        feature_file = open(output_folder+"/annotation_log/features_used.csv", "w")
+        feature_file.write("FEATURE\n")
+        for x in df.keys():
+            if(x not in ['ID', "LABEL"]):
+                feature_file.write(str(x)+"\n")
+        feature_file.close()
+
+        ## check if there is a reactome result file
+        for tf in reactome_target_file:
+            if(os.path.isfile(output_folder+"/annotation_log/"+tf)):
+                stat_stuff.generate_z_score_from_reactome_results_file(
+                    input_file,
+                    output_folder+"/annotation_log/"+tf,
+                    output_folder
+                )
+
+
+    else:
+        print("[!][ANNOTATION] => can't determined input file")
+
+
+
+
 
 def parse_configuration_file(config_file):
     """
@@ -277,7 +340,7 @@ def run(input_file, output_folder, action):
     ## parameters
 
     ## check if input file exist
-    if(not os.path.isfile(input_file)):
+    if(not os.path.isfile(input_file) and action != "annotation"):
         print("[!] Can't find "+str(input_file))
         return -1
 
@@ -295,15 +358,20 @@ def run(input_file, output_folder, action):
         #-> create report
     elif(action == "clf"):
         run_classification(input_file, output_folder)
+        report_generator.create_report(input_file, output_folder)
     elif(action == "fs"):
         run_feature_selection(input_file)
+        report_generator.create_report(input_file, output_folder)
     elif(os.path.isfile(action)):
         instruction_list = parse_configuration_file(action)
         run_instruction(instruction_list, input_file, output_folder)
+        report_generator.create_report(input_file, output_folder)
+    elif(action == "annotation"):
+        run_annotation(output_folder)
 
 
     ## create report
-    report_generator.create_report(input_file, output_folder)
+    #report_generator.create_report(input_file, output_folder)
 
 
 
@@ -398,7 +466,7 @@ if __name__=='__main__':
     cprint(figlet_format(text, font="standard"), "blue")
 
     ## check that all arguments are present
-    if(input_file == ''):
+    if(input_file == '' and action != "annotation"):
         print("[!] No input file detected")
         print("[!] Use -h or --help options to get more informations")
         sys.exit()

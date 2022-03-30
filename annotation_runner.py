@@ -120,23 +120,11 @@ def run_reactome_annotation(input_file, output_folder):
             markers+=str(elt)+","
     markers = markers[:-1]
 
-    print(markers)
-
     ## init request
-    result = analysis.identifiers(ids=markers, species='Homo Sapiens')
+    result = analysis.identifiers(ids=markers)
     token = result['summary']['token']
 
-
     ## run analysis
-    """
-    token_result = analysis.token(
-        token,
-        species='Homo sapiens',
-    )
-    """
-
-    pprint.pprint(result)
-
     token_result = analysis.token(
         token,
         species='Homo sapiens',
@@ -172,7 +160,7 @@ def run_reactome_annotation(input_file, output_folder):
             output_data.write(str(pathway)+","+str(pathway_to_pval[pathway])+"\n")
         output_data.close()
     else:
-        print("[*][ANNOTATION][REACTOME] >> NOTHING FOUND <<")
+        print("[*][ANNOTATION][REACTOME] => Nothing Found")
 
 
 

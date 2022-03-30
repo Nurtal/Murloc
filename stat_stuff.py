@@ -17,6 +17,7 @@ def plot_zscore(input_file, gene_list, output_file_name):
     import os
 
     ## parameters
+    log_file_name = output_file_name.replace(".png", "_pvalue.log")
 
     ## define title for the figure
     title = output_file_name.split("/")
@@ -73,6 +74,15 @@ def plot_zscore(input_file, gene_list, output_file_name):
     ## run stat test
     pvalues = [result.pvalue for result in stat_results]
     formatted_pvalues = [f'p={pvalue:.2e}' for pvalue in pvalues]
+
+    ## save pvalue in log
+    log_file = open(log_file_name, "w")
+    cmpt = 0
+    for p in pairs:
+        log_file.write(str(p[0])+" vs "+str(p[1])+" = "+str(pvalues[cmpt])+"\n")
+        cmpt+=1
+    log_file.close()
+
 
     #-> plot
     plotting_parameters = {
@@ -214,7 +224,7 @@ def generate_z_score_from_reactome_results_file(data_file, reactome_file, output
             #-> generate output file name
             output_file_name = path_name.replace("_", "")
             output_file_name = output_file_name+".png"
-            output_file_name = output_folder+"/"+output_file_name
+            output_file_name = output_folder+"/annotation_log/"+output_file_name
 
             #-> generate graphic
             plot_zscore(data_file, gene_list, output_file_name)
@@ -230,8 +240,8 @@ def generate_z_score_from_reactome_results_file(data_file, reactome_file, output
 #plot_zscore("/home/bran/Workspace/PRECISINV/fatigue/dataset/rnaseq_with_ctrl_paired.csv", ["DPAGT1"], "/home/bran/Workspace/PRECISINV/fatigue/murloc_search_deep/z_score_with_ctrl_paired.png")
 """
 plot_zscore("/home/bran/Workspace/PRECISINV/ccp/dataset/rnaseq_RA_with_ctrl.csv",
-    ["MET"],
-    "/home/bran/Workspace/PRECISINV/ccp/murloc_rnaseq/RA/MET_with_ctrl.png"
+    ["FBXO10"],
+    "/home/bran/Workspace/PRECISINV/ccp/murloc_rnaseq/RA/FBXO10_with_ctrl.png"
 )
 """
 

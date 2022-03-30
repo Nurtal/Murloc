@@ -175,6 +175,7 @@ def hunt_best_conf(output_folder):
     best_var_nb = "NA"
     best_name_file = "NA"
     folder_separator = "/"
+    drop_list = []
 
     ## check if we are running on a fucking windows machine
     if(os.name == 'nt'):
@@ -192,12 +193,16 @@ def hunt_best_conf(output_folder):
         solver = row['SOLVER']
         nb_features = row['NB_FEATURES']
 
+        #-> get file name
+        rfe_file = output_folder+folder_separator+"picker_log"+folder_separator+"rfe_determined_features_i"+str(best_var_nb)+".csv"
+        drop_list.append(rfe_file)
+
         #-> test if acc is the best
         if(float(acc) > max_acc):
             max_acc = float(acc)
             best_config = solver
             best_var_nb = nb_features
-            best_name_file = output_folder+folder_separator+"picker_log"+folder_separator+"rfe_determined_features_i"+str(best_var_nb)+".csv"
+            best_name_file = rfe_file
 
     ## craft output data
     hunt_results = {
@@ -209,6 +214,10 @@ def hunt_best_conf(output_folder):
     ## save best file
     if(best_name_file != "NA"):
         shutil.copy(best_name_file, output_folder+folder_separator+"picker_log"+folder_separator+"picker_selected_features.csv")
+
+    ## remove tmp log file
+    for rfe_log in drop_list:
+        os.remove(rfe_log)
 
     ## return data
     return hunt_results
