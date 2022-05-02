@@ -131,6 +131,7 @@ def parse_configuration_file(config_file):
     action_to_available_algorithm["fs"] = ["boruta", "picker", "boruta-picker"]
     action_to_available_algorithm["clf"] = ["lda", "rf", "logistic"]
     action_to_available_algorithm["annotation"] = ["KEGG-2016", 'REACTOME']
+    iterative_limit = "NA"
 
     ## read config file
     config_data = open(config_file, "r")
@@ -141,6 +142,13 @@ def parse_configuration_file(config_file):
         if(len(line_in_array) > 0):
             action_type = line_in_array[0]
             algorithm = line_in_array[1]
+
+            #-> detect iterative mode
+            if(action_type = "iterative"):
+                try:
+                    iterative_mode = float(line_in_array[1])
+                except:
+                    print("[!] can't parse iteration limit in "+str(line))
 
             if(action_type in list(action_to_available_algorithm.keys())):
                 if(algorithm in action_to_available_algorithm[action_type]):
@@ -156,7 +164,7 @@ def parse_configuration_file(config_file):
     config_data.close()
 
     ## return list of action
-    return instruction_list
+    return (instruction_list,iterative_limit)
 
 
 
@@ -322,6 +330,66 @@ def run_instruction(instruction_list, input_file, output_folder):
 
 
 
+def run_instruction_iterative_mode(instruction_list, input_file, output_folder):
+    """
+    TO TEST
+    """
+
+    ## importation
+    import os
+    import pandas as pd
+
+    ## parameters
+    acc_check = True
+    acc_limit = instruction_list[1]
+    cmpt_iteration = 0
+    target_acc_file_list = [
+        "rf_log/rf_evaluation.log",
+        "lda_log/lda_evaluation.log",
+        "logistic_log/logistic_evaluation.log"
+    ]
+
+    ## check fs process
+    if("fs_boruta-picker" in instruction_list[0] or "fs_picker" in instruction_list[0]):
+        feature_file = "picker_log/picker_selected_features.csv"
+
+    ## init loop
+    while(acc_check):
+
+        #-> create output sub folder
+        sub_folder = output_folder+"/iterative_mining_"+str(cmpt_iteration)
+        os.mkdir(output_folder)
+
+        #-> run with instruction
+        run_instruction(instruction_list[0], input_file, sub_folder)
+
+        #-> control acc
+        acc_check = False
+        for tf in target_acc_file_list:
+            if(os.path.isfile(sub_folder+"/"+tf)):
+                acc = pd.read_csv(tf)
+                acc = list(acc['ACC'])
+                acc = float(acc[0])
+                if(acc <= acc_limit):
+                    acc_check = True
+
+        if(acc_check):
+
+            #-> update iteration cmpt
+            cmpt_iteration +=1
+
+            #-> create new input file
+            if(os.path.isfile(feature_file)):
+                input_data = pd.read_csv(input_file)
+                feature_drop_list =  pd.read_csv(feature_file)
+                feature_drop_list = list(feature_drop_list["FEATURE"])
+                feature_to_keep = []
+                for k in list(input_data.keys()):
+                    if(k not in feature_drop_list):
+                        feature_to_keep.append(k)
+                input_data = input_data[feature_to_keep]
+                input_file = sub_folder+"/dataset_iteration_"+str(cmpt_iteration)+".csv"
+                input_data.to_csv(input_file, index=False)
 
 
 
@@ -364,8 +432,11 @@ def run(input_file, output_folder, action):
         report_generator.create_report(input_file, output_folder)
     elif(os.path.isfile(action)):
         instruction_list = parse_configuration_file(action)
-        run_instruction(instruction_list, input_file, output_folder)
-        report_generator.create_report(input_file, output_folder)
+        if(instruction_list[1] == "NA"):
+            run_instruction(instruction_list[0], input_file, output_folder)
+            report_generator.create_report(input_file, output_folder)
+        else:
+            run_instruction_iterative_mode(instruction_list, input_file, output_folder)
     elif(action == "annotation"):
         run_annotation(output_folder)
 
