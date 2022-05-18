@@ -41,6 +41,21 @@ def run_boruta(dataset, iteration, depth, output_folder):
     X = df[features].values
     Y = df['LABEL'].values.ravel()
 
+    ## remove fucking space in numbers
+    """
+    X_cleaned = []
+    for vector in X:
+        vector_clean = []
+        for scalar in vector:
+            scalar_clean = str(scalar)
+            scalar_clean = scalar_clean.replace(" ", "")
+            print(scalar)
+            scalar_clean = float(scalar_clean)
+            vector_clean.append(scalar_clean)
+        X_cleaned.append(vector_clean)
+    X = X_cleaned
+    """
+
     ## setup the RandomForrestClassifier as the estimator to use for Boruta
     rf = RandomForestClassifier(n_jobs=-1, class_weight='balanced', max_depth=depth)
 

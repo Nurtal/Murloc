@@ -193,8 +193,9 @@ def hunt_best_conf(output_folder):
         solver = row['SOLVER']
         nb_features = row['NB_FEATURES']
 
+
         #-> get file name
-        rfe_file = output_folder+folder_separator+"picker_log"+folder_separator+"rfe_determined_features_i"+str(best_var_nb)+".csv"
+        rfe_file = output_folder+folder_separator+"picker_log"+folder_separator+"rfe_determined_features_i"+str(nb_features)+".csv"
         drop_list.append(rfe_file)
 
         #-> test if acc is the best
@@ -217,7 +218,10 @@ def hunt_best_conf(output_folder):
 
     ## remove tmp log file
     for rfe_log in drop_list:
-        os.remove(rfe_log)
+        try:
+            os.remove(rfe_log)
+        except:
+            pass
 
     ## return data
     return hunt_results
@@ -233,3 +237,4 @@ plot_acc("D:\\murloc_output_test")
 hunt_best_conf("D:\\murloc_output_test")
 """
 #run_picker("../SSA/dataset/33_gene_sig_MCTD_classification.csv", "../misc/murloc_test6", 15, 1)
+#hunt_best_conf("/home/bran/Workspace/REDSIG/RTX_only/essdai_picker/")

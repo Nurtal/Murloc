@@ -75,15 +75,18 @@ def run_lda_classifier(input_file, work_folder):
     print("[+][CLF-LDA] => ACC : "+str(acc)+" %")
 
     ## create confusion matrix figure
-    df_cm = pd.DataFrame(
-        matrix,
-        index = list(old_label_to_encode.keys()),
-        columns = list(old_label_to_encode.keys())
-    )
-    plt.figure(figsize = (10,7))
-    sn.heatmap(df_cm, annot=True, cmap='Blues')
-    plt.savefig(lda_confusion_save_file)
-    plt.close()
+    try:
+        df_cm = pd.DataFrame(
+            matrix,
+            index = list(old_label_to_encode.keys()),
+            columns = list(old_label_to_encode.keys())
+        )
+        plt.figure(figsize = (10,7))
+        sn.heatmap(df_cm, annot=True, cmap='Blues')
+        plt.savefig(lda_confusion_save_file)
+        plt.close()
+    except:
+        pass
 
     ## save acc in a log file
     log_file = open(log_file_name, "w")
