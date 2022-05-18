@@ -131,6 +131,7 @@ def parse_configuration_file(config_file):
     action_to_available_algorithm["fs"] = ["boruta", "picker", "boruta-picker"]
     action_to_available_algorithm["clf"] = ["lda", "rf", "logistic"]
     action_to_available_algorithm["annotation"] = ["KEGG-2016", 'REACTOME']
+    action_to_available_algorithm["pca"] = ["all", 'selected']
     iterative_limit = "NA"
 
     ## read config file
@@ -185,6 +186,7 @@ def run_instruction(instruction_list, input_file, output_folder):
     import annotation_runner
     import os
     import shutil
+    import display_data
 
 
     ## parameters
@@ -328,6 +330,17 @@ def run_instruction(instruction_list, input_file, output_folder):
                 elif(not boruta_used and not picker_used):
                     annotation_runner.run_reactome_annotation(input_file, output_folder)
 
+        #-> deal PCA
+        if(action == "pca"):
+            if(algorithm == "all"):
+                display_data.run_pca(input_file, output_folder)
+            if(algorithm == "selected"):
+                if(boruta_used and not picker_used):
+                    display_data.run_pca(boruta_input_file, output_folder)
+                elif(picker_used):
+                    display_data.run_pca(picker_input_file, output_folder)
+
+
 
 
 def run_instruction_iterative_mode(instruction_list, input_file, output_folder):
@@ -358,11 +371,7 @@ def run_instruction_iterative_mode(instruction_list, input_file, output_folder):
 
         #-> create output sub folder
         sub_folder = output_folder+"/iterative_mining_"+str(cmpt_iteration)
-<<<<<<< HEAD
         os.mkdir(sub_folder)
-=======
-        os.mkdir(output_folder)
->>>>>>> 01b168cb2669323fa439ae2da4d1f92608f10651
 
         #-> run with instruction
         run_instruction(instruction_list[0], input_file, sub_folder)
@@ -371,17 +380,10 @@ def run_instruction_iterative_mode(instruction_list, input_file, output_folder):
         acc_check = False
         for tf in target_acc_file_list:
             if(os.path.isfile(sub_folder+"/"+tf)):
-<<<<<<< HEAD
                 acc = pd.read_csv(sub_folder+"/"+tf)
                 acc = list(acc['ACC'])
                 acc = float(acc[0])
                 if(acc >= acc_limit):
-=======
-                acc = pd.read_csv(tf)
-                acc = list(acc['ACC'])
-                acc = float(acc[0])
-                if(acc <= acc_limit):
->>>>>>> 01b168cb2669323fa439ae2da4d1f92608f10651
                     acc_check = True
 
         if(acc_check):
@@ -390,15 +392,9 @@ def run_instruction_iterative_mode(instruction_list, input_file, output_folder):
             cmpt_iteration +=1
 
             #-> create new input file
-<<<<<<< HEAD
             if(os.path.isfile(sub_folder+"/"+feature_file)):
                 input_data = pd.read_csv(input_file)
                 feature_drop_list =  pd.read_csv(sub_folder+"/"+feature_file)
-=======
-            if(os.path.isfile(feature_file)):
-                input_data = pd.read_csv(input_file)
-                feature_drop_list =  pd.read_csv(feature_file)
->>>>>>> 01b168cb2669323fa439ae2da4d1f92608f10651
                 feature_drop_list = list(feature_drop_list["FEATURE"])
                 feature_to_keep = []
                 for k in list(input_data.keys()):
