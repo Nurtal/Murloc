@@ -181,6 +181,24 @@ def create_report(input_file, output_folder):
             if(not os.path.isfile(output_folder+"/annotation_log/reactome_selected_pathways.csv") and not os.path.isfile(output_folder+"/annotation_log/selected_pathways.csv")):
                 doc.append("No Pathway detected")
 
+    ## STRING network
+    if(os.path.isdir(output_folder+"/display_log")):
+        with doc.create(Section('Network')):
+
+            ## check if simple network file exist
+            simple_network_file = output_folder+"/display_log/string_graphe_simple.png"
+            if(os.path.isfile(simple_network_file)):
+                with doc.create(Subsection('Simple STRING Network')):
+                    with doc.create(Figure(position='h!')) as meta_fig:
+                        meta_fig.add_image(simple_network_file, width='550px')
+
+            ## check if enhanced network file exist
+            enhanced_network_file = output_folder+"/display_log/string_graphe_enhanced.png"
+            if(os.path.isfile(enhanced_network_file)):
+                with doc.create(Subsection('Enhanced STRING Network')):
+                    with doc.create(Figure(position='h!')) as meta_fig:
+                        meta_fig.add_image(enhanced_network_file, width='550px')
+
 
 
 
