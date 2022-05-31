@@ -132,7 +132,7 @@ def parse_configuration_file(config_file):
     action_to_available_algorithm["clf"] = ["lda", "rf", "logistic"]
     action_to_available_algorithm["annotation"] = ["KEGG-2016", 'REACTOME']
     action_to_available_algorithm["pca"] = ["all", 'selected']
-    action_to_available_algorithm["display"] = ["string"]
+    action_to_available_algorithm["display"] = ["string", "heatmap"]
     iterative_limit = "NA"
 
     ## read config file
@@ -350,6 +350,11 @@ def run_instruction(instruction_list, input_file, output_folder):
                 elif(picker_used):
                     feature_file = output_folder+folder_separator+"picker_log"+folder_separator+"picker_selected_features.csv"
                     network_analysis.run_string_analysis(feature_file, output_folder)
+            if(algorithm == "heatmap"):
+                if(boruta_used and not picker_used):
+                    display_data.craft_heatmap(boruta_input_file, output_folder)
+                elif(picker_used):
+                    display_data.craft_heatmap(picker_input_file, output_folder)
 
 
 

@@ -72,4 +72,48 @@ def run_pca(data_file, output_folder):
 
 
 
+def craft_heatmap(data_file, output_folder):
+    """
+    """
+
+    ## importation
+    import pandas as pd
+    import matplotlib.pyplot as plt
+    import seaborn as sns
+    import os
+
+    ## init folder of not exist
+    if(not os.path.isdir(output_folder+"/display_log")):
+        os.mkdir(output_folder+"/display_log")
+
+    ## parameters
+    output_filename = output_folder+"/display_log/heatmap.png"
+
+    ## load dataset
+    df = pd.read_csv(data_file)
+
+    ## preprocess data
+    old_to_new = {}
+    for index, row in df.iterrows():
+        id = row["ID"]
+        label = row["LABEL"]
+        old_to_new[id] = str(id)+"_"+str(label)
+    df["ID"] = df["ID"].replace(old_to_new)
+    df = df.set_index(['ID'])
+    df_to_plot = df.drop(columns=["LABEL"])
+
+    ## normalisze dataset
+    df_to_plot=(df_to_plot-df_to_plot.mean())/df_to_plot.std()
+
+    ## craft heatmap
+    plt.figure(figsize=(10,10))
+    heat_map = sns.heatmap(df_to_plot, cmap="YlGnBu")
+    plt.title("HeatMap")
+    plt.savefig(output_filename)
+    plt.close()
+
+
+
+
 #run_pca("/home/bran/Workspace/misc/test_murloc45678879/rnaseq_SSc_X60_selected_features_from_boruta_selected_features_selected_features_from_picker_selected_features.csv", "/home/bran/Workspace/misc/test_murloc45678879")
+#craft_heatmap("/home/bran/Workspace/misc/test_murloc45678879/rnaseq_SSc_X60_selected_features_from_boruta_selected_features_selected_features_from_picker_selected_features.csv", "/home/bran/Workspace/misc/test_murloc45678879")
