@@ -37,7 +37,7 @@ def create_report(input_file, output_folder):
 
         #-> extract targets
         target_list = []
-        for elt in list(df['LABEL']):
+        for elt in list(df[list(df.keys())[-1]]):
             if(elt not in target_list):
                 target_list.append(elt)
 

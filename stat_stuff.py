@@ -128,9 +128,13 @@ def run_univar_test(input_file, feature_file, output_folder):
     import os
     import shutil
     from scipy import stats
+    import matplotlib.pyplot as plt
+    import seaborn as sns
+    import numpy as np
 
     ## parameters
     log_file_name = output_folder+"/stat_analysis/univar_test.log"
+    drop_outliers = True
 
     ## clean & prepare output folder
     if(not os.path.isdir(output_folder+"/stat_analysis")):
@@ -170,16 +174,53 @@ def run_univar_test(input_file, feature_file, output_folder):
         if(len(list(label_to_series.keys())) == 2):
             group_1 = label_to_series[list(label_to_series.keys())[0]]
             group_2 = label_to_series[list(label_to_series.keys())[1]]
+            label1 = list(label_to_series.keys())[0]
+            label2 = list(label_to_series.keys())[1]
+
+            #-> drop outliers
+            if(drop_outliers):
+
+                print("[+][WARNING][STAT] => removing outliers")
+
+                group_1 = np.array(group_1)
+                group_1 = list(group_1[~np.isnan(group_1)])
+                group_2 = np.array(group_2)
+                group_2 = list(group_2[~np.isnan(group_2)])
+
+
+                treshold = 3
+                group_1 = [e for e in group_1 if (np.mean(group_1) - treshold * np.std(group_1) < e < np.mean(group_1) + treshold * np.std(group_1))]
+                group_2 = [e for e in group_2 if (np.mean(group_2) - treshold * np.std(group_2) < e < np.mean(group_2) + treshold * np.std(group_2))]
+
+
             results = stats.ttest_ind(group_1, group_2)
             pval = results[1]
+
+            #-> update log file
+            log_file.write(str(feature)+","+str(pval)+"\n")
+
+            #-> generate violon plot
+            label_list = []
+            for x in group_1:
+                label_list.append(label1)
+            for x in group_2:
+                label_list.append(label2)
+            data_list = group_1+group_2
+
+            dfplot = pd.DataFrame(list(zip(data_list, label_list)), columns =[feature, 'LABEL'])
+
+            sns.violinplot(data=dfplot, x=feature, y="LABEL", inner="point")
+            plt.savefig(output_folder+"/stat_analysis/"+str(feature)+"_distribution.png")
+            plt.close()
+
         else:
             pass
 
 
         ## if more than 2 labels are detected -> go for anova
         #--> run t test
-        arguments = list(label_to_series.values())
-        results = stats.ttest_ind(arguments)
+        #arguments = list(label_to_series.values())
+        #results = stats.ttest_ind(arguments)
         #pval = results[1]
 
         #-> generate figure
@@ -234,6 +275,7 @@ def generate_z_score_from_reactome_results_file(data_file, reactome_file, output
 
 
 #run_univar_test("D:\\murloc_output_test5\\toy_dataset_selected_features_from_picker_selected_features.csv", "D:\\murloc_output_test5\\picker_log\\picker_selected_features.csv", "D:\\murloc_output_test")
+#run_univar_test("/home/bran/Workspace/luminex/murloc_lukas_mfi/mfi_dataset_selected_features_from_boruta_selected_features.csv", "/home/bran/Workspace/luminex/murloc_lukas_mfi/picker_log/picker_selected_features.csv", "/home/bran/Workspace/luminex/murloc_lukas_mfi")
 
 
 #plot_zscore("d:\\murloc_output_test254\\toy_dataset_selected_features_from_picker_selected_features.csv", ['EXOC6','FAM168B','FAM65B','FBXO10','FBXO38','GNB1','GNG11'], "d:\\test_zscore.png")
@@ -244,6 +286,14 @@ plot_zscore("/home/bran/Workspace/PRECISINV/ccp/dataset/rnaseq_RA_with_ctrl.csv"
     "/home/bran/Workspace/PRECISINV/ccp/murloc_rnaseq/RA/FBXO10_with_ctrl.png"
 )
 """
+"""
+plot_zscore("/home/bran/Workspace/PRECISINV/SjS/RESPIRATORY/rnaseq_dataset_selected_features_from_boruta_selected_features_selected_features_from_picker_selected_features.csv",
+    ["FLT3"],
+    "/home/bran/Workspace/PRECISINV/SjS/RESPIRATORY/display_log/FLT3.png"
+)
+"""
+
+
 
 #generate_z_score_from_reactome_results_file("/home/bran/Workspace/PRECISINV/ccp/dataset/rnaseq_RA_with_ctrl.csv", "/home/bran/Workspace/PRECISINV/ccp/murloc_rnaseq/RA/reactome_manual.csv", "/home/bran/Workspace/PRECISINV/ccp/murloc_rnaseq/RA/")
 """

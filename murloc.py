@@ -132,7 +132,8 @@ def parse_configuration_file(config_file):
     action_to_available_algorithm["clf"] = ["lda", "rf", "logistic"]
     action_to_available_algorithm["annotation"] = ["KEGG-2016", 'REACTOME']
     action_to_available_algorithm["pca"] = ["all", 'selected']
-    action_to_available_algorithm["display"] = ["string", "heatmap"]
+    action_to_available_algorithm["display"] = ["string", "heatmap", "univar"]
+    action_to_available_algorithm["preprocessing"] = ["drop-outliers"]
     iterative_limit = "NA"
 
     ## read config file
@@ -188,6 +189,7 @@ def run_instruction(instruction_list, input_file, output_folder):
     import shutil
     import display_data
     import network_analysis
+    import pandas as pd
 
 
     ## parameters
@@ -206,6 +208,14 @@ def run_instruction(instruction_list, input_file, output_folder):
         instruction = instruction.split("_")
         action = instruction[0]
         algorithm = instruction[1]
+
+        #-> deal with preprocessing
+        if(action == "preprocessing"):
+            if(algorithm == "drop-outliers"):
+                df = pd.read_csv(input_file)
+                df = dataset_preprocessing.drop_outliers(df,3)
+                df.to_csv(output_folder+"/dataset_outliers_dropped.csv", index=False)
+                input_file = output_folder+"/dataset_outliers_dropped.csv"
 
         #-> deal with feature selection
         if(action == "fs"):
@@ -229,7 +239,7 @@ def run_instruction(instruction_list, input_file, output_folder):
             if(algorithm == "picker"):
 
                 #-> default parameters
-                min_features = 10
+                min_features = 5
                 step = 1
                 feature_file = output_folder+folder_separator+"picker_log"+folder_separator+"picker_selected_features.csv"
 
@@ -263,23 +273,43 @@ def run_instruction(instruction_list, input_file, output_folder):
                 #-> craft dataset with selected variables
                 input_file = dataset_preprocessing.craft_selected_variable_dataset(input_file, feature_file, output_folder)
 
+
                 ## Follow with picker
                 #-> default parameters
                 min_features = 10
                 step = 1
-                feature_file = output_folder+folder_separator+"picker_log"+folder_separator+"picker_selected_features.csv"
 
-                #-> run picker
-                fs_picker.run_picker(input_file, output_folder, min_features, step)
+                ## check that feature selected by Brurat are above min features for RFE, if its not the case don't run RFE,
+                ## just copy the boruta file into the picker emplacement and display a waring
+                nb_boruta_features = pd.read_csv(feature_file)
+                nb_boruta_features = len(nb_boruta_features["FEATURE"])
+                if(nb_boruta_features <= min_features):
 
-                #-> generate graphics
-                fs_picker.plot_acc(output_folder)
+                    print("[!][BORUTA-PICKER] => min features selection already reached by Boruta ("+str(nb_boruta_features)+" found for a RFE min if "+str(min_features)+")")
+                    print("[!][BORUTA-PICKER] => RFE not run, selecting Boruta features instead")
 
-                #-> save best features
-                fs_picker.hunt_best_conf(output_folder)
+                    ## craft architecture file if not already exist
+                    if(not os.path.isdir(output_folder+folder_separator+"picker_log")):
+                        os.mkdir(output_folder+folder_separator+"picker_log")
+                    destination_file = output_folder+folder_separator+"picker_log"+folder_separator+"picker_selected_features.csv"
+                    shutil.copy(feature_file, destination_file)
 
-                #-> craft dataset with selected variables
-                input_file = dataset_preprocessing.craft_selected_variable_dataset(input_file, feature_file, output_folder)
+                else:
+
+                    ## everything ok, proceed to run RFE
+                    feature_file = output_folder+folder_separator+"picker_log"+folder_separator+"picker_selected_features.csv"
+
+                    #-> run picker
+                    fs_picker.run_picker(input_file, output_folder, min_features, step)
+
+                    #-> generate graphics
+                    fs_picker.plot_acc(output_folder)
+
+                    #-> save best features
+                    fs_picker.hunt_best_conf(output_folder)
+
+                    #-> craft dataset with selected variables
+                    input_file = dataset_preprocessing.craft_selected_variable_dataset(input_file, feature_file, output_folder)
 
                 #-> update workflow parameters
                 picker_used = True

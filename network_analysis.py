@@ -5,7 +5,11 @@ def rescale(l,newmin,newmax):
     ploting graph stuff
     """
     arr = list(l)
-    return [(x-min(arr))/(max(arr)-min(arr))*(newmax-newmin)+newmin for x in arr]
+    try:
+        arr = [(x-min(arr))/(max(arr)-min(arr))*(newmax-newmin)+newmin for x in arr]
+    except:
+        pass
+    return arr
 
 
 
@@ -84,6 +88,7 @@ def run_string_analysis(selected_feature_file, output_folder):
                  font_color='white',font_weight='bold',font_size='9')
     plt.axis('off')
     plt.savefig(output_folder+"/display_log/string_graphe_enhanced.png")
+    plt.close()
 
 
-#run_string_analysis("/home/bran/Workspace/misc/test_murloc45678879/picker_log/picker_selected_features.csv", "/home/bran/Workspace/misc/test_murloc45678879/")
+#run_string_analysis("/home/bran/Workspace/PRECISINV/ccp/features/RApos_vs_otherPos_genes_from_cpg_selected.csv", "/home/bran/Workspace/PRECISINV/ccp/images/")

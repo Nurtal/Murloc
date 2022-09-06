@@ -30,6 +30,31 @@ def drop_missing_values(df):
     return df
 
 
+def drop_outliers(df, nb_of_std):
+    """
+    not finished
+    """
+
+    ## importation
+    import pandas as pd
+    import numpy as np
+    from scipy import stats
+
+    ## parse features order
+    id_list = df[list(df.keys())[0]]
+    features = list(df.keys())[1:-2]
+    df_to_process = df[features]
+
+    ## drop outliers
+    df_to_process = df_to_process[(np.abs(stats.zscore(df_to_process)) < 3).all(axis=1)]
+
+    ## craft drop list
+    print(df_to_process)
+
+
+    ## return dataframe
+    return df
+
 def rename_variables(df):
     """
     """
