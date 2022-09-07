@@ -117,7 +117,6 @@ def run_annotation(output_folder):
 
 
 
-
 def parse_configuration_file(config_file):
     """
     Not tested
