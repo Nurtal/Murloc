@@ -70,8 +70,9 @@ def create_report(input_file, output_folder):
                 doc.append(str(nb_features_selected)+" features extracted by Picker")
 
                 #-> insert acc figure
-                with doc.create(Figure(position='h!')) as meta_fig:
-                    meta_fig.add_image(output_folder+"/picker_log/picker_exploration.png", width='350px')
+                if(os.path.isfile(output_folder+"/picker_log/picker_exploration.png")):
+                    with doc.create(Figure(position='h!')) as meta_fig:
+                        meta_fig.add_image(output_folder+"/picker_log/picker_exploration.png", width='350px')
 
     ## Clacification
     with doc.create(Section('Classifier')):
@@ -93,8 +94,9 @@ def create_report(input_file, output_folder):
                 doc.append("ACC  = "+str(acc)+" %")
 
             #-> insert confusion matrix figure
-            with doc.create(Figure(position='h!')) as meta_fig:
-                meta_fig.add_image(output_folder+"/lda_log/lda_confusion_matrix.png", width='550px')
+            if(os.path.isfile(output_folder+"/lda_log/lda_confusion_matrix.png")):
+                with doc.create(Figure(position='h!')) as meta_fig:
+                    meta_fig.add_image(output_folder+"/lda_log/lda_confusion_matrix.png", width='550px')
 
         #-> deal with random forest
         if(os.path.isdir(output_folder+"/rf_log")):
@@ -113,8 +115,9 @@ def create_report(input_file, output_folder):
                 doc.append("ACC  = "+str(acc)+" %")
 
             #-> insert confusion matrix figure
-            with doc.create(Figure(position='h!')) as meta_fig:
-                meta_fig.add_image(output_folder+"/rf_log/rf_confusion_matrix.png", width='550px')
+            if(os.path.isfile(output_folder+"/rf_log/rf_confusion_matrix.png")):
+                with doc.create(Figure(position='h!')) as meta_fig:
+                    meta_fig.add_image(output_folder+"/rf_log/rf_confusion_matrix.png", width='550px')
 
 
         #-> deal with logistic regression
@@ -134,8 +137,9 @@ def create_report(input_file, output_folder):
                 doc.append("ACC  = "+str(acc)+" %")
 
             #-> insert confusion matrix figure
-            with doc.create(Figure(position='h!')) as meta_fig:
-                meta_fig.add_image(output_folder+"/logistic_log/logistic_confusion_matrix.png", width='550px')
+            if(os.path.isfile(output_folder+"/logistic_log/logistic_confusion_matrix.png")):
+                with doc.create(Figure(position='h!')) as meta_fig:
+                    meta_fig.add_image(output_folder+"/logistic_log/logistic_confusion_matrix.png", width='550px')
 
 
     ## Annotation

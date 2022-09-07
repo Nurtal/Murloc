@@ -1,5 +1,18 @@
 
-
+## importation
+import fs_boruta
+import fs_picker
+import clf_lda
+import clf_rf
+import clf_logistic
+import dataset_preprocessing
+import annotation_runner
+import os
+import shutil
+import display_data
+import network_analysis
+import pandas as pd
+import stat_stuff
 
 
 def run_feature_selection(input_file):
@@ -177,19 +190,7 @@ def run_instruction(instruction_list, input_file, output_folder):
     run with a list of instruction
     """
 
-    ## importation
-    import fs_boruta
-    import fs_picker
-    import clf_lda
-    import clf_rf
-    import clf_logistic
-    import dataset_preprocessing
-    import annotation_runner
-    import os
-    import shutil
-    import display_data
-    import network_analysis
-    import pandas as pd
+
 
 
     ## parameters
@@ -385,6 +386,11 @@ def run_instruction(instruction_list, input_file, output_folder):
                     display_data.craft_heatmap(boruta_input_file, output_folder)
                 elif(picker_used):
                     display_data.craft_heatmap(picker_input_file, output_folder)
+            if(algorithm == "univar"):
+                if(boruta_used and not picker_used):
+                    stat_stuff.run_univar_test(boruta_input_file, feature_file, output_folder)
+                elif(picker_used):
+                    stat_stuff.run_univar_test(picker_input_file, feature_file, output_folder)
 
 
 
