@@ -2,9 +2,10 @@
 ## importation
 import fs_boruta
 import fs_picker
-import clf_lda
-import clf_rf
-import clf_logistic
+import clf.clf_lda as clf_lda
+import clf.clf_rf as clf_rf
+import clf.clf_logistic as clf_logistic
+import clf.clf_xgb as clf_xgb
 import dataset_preprocessing
 import annotation_runner
 import os
@@ -119,29 +120,42 @@ def run_annotation(output_folder):
 
 def parse_configuration_file(config_file):
     """
-    Not tested
-    read a config file and return the list of extracted instruction
+    Read a config file and return the list of extracted instruction
 
-    config file format:
+    # config file format:
 
         action-type_algorithm
 
-
-    -> annotation should be written :
-        "annotation_KEGG-2016" in the config file
-
-
-
-    boruta-picker : start with boruta, run picker on the features selected by
-    boruta.
-
+    # authorized options:
+        -> fs:
+            * boruta (classic boruta algorithm)
+            * picker (home made picker algorithm)
+            * boruta-picker (boruta chained with picker)
+        -> clf:
+            * lda (linear discriminant analysis)
+            * rf (random forest)
+            * logistic (logistic regression, work only for binary classification)
+            * xgb (xgboosted trees)
+            * xgb-hyper (xgboosted trees with a step of hyperparmaetrisation, can be a long process)
+        -> annotation:
+            * KEGG-2016 (KEGG database from 2016)
+            * REACTOME (reactome database)
+        -> pca:
+            * all (perform a pca on all the data in the input file)
+            * selected (perform a pca on the data selected by the fs step)
+        -> display:
+            * string (string analysis, work for genes & protein)
+            * heatmap (craft a heatmap of the data using features selected in fs step)
+            * univar (craft violin plot of features that are statisticallt different between groups)
+        -> preprocessing:
+            * drop-outliers (drop outliers from the original dataset, treshold values is by default set to 3 std) 
     """
 
     ## parameters
     instruction_list = []
     action_to_available_algorithm = {}
     action_to_available_algorithm["fs"] = ["boruta", "picker", "boruta-picker"]
-    action_to_available_algorithm["clf"] = ["lda", "rf", "logistic"]
+    action_to_available_algorithm["clf"] = ["lda", "rf", "logistic", "xgb", "xgb-hyper"]
     action_to_available_algorithm["annotation"] = ["KEGG-2016", 'REACTOME']
     action_to_available_algorithm["pca"] = ["all", 'selected']
     action_to_available_algorithm["display"] = ["string", "heatmap", "univar"]
@@ -188,9 +202,6 @@ def run_instruction(instruction_list, input_file, output_folder):
     """
     run with a list of instruction
     """
-
-
-
 
     ## parameters
     folder_separator = "/"
@@ -334,6 +345,19 @@ def run_instruction(instruction_list, input_file, output_folder):
                 #-> run logistic
                 clf_logistic.run_logistic_regression(input_file, output_folder)
 
+            if(algorithm == "xgb"):
+
+                #-> run xgboosted tree
+                clf_xgb.run_xgb_classifier(input_file, output_folder)
+
+            if(algorithm == "xgb-hyper"):
+
+                #-> run hyperparametrisation
+                clf_xgb.run_hyperparametrisation(input_file, output_folder)
+
+                #-> run xgboosted tree
+                clf_xgb.run_xgb_classifier(input_file, output_folder)
+        
         #-> deal with annotation
         elif(action == "annotation"):
 
@@ -522,38 +546,67 @@ def display_help():
     """
 
     print("""
-        Work in Progress [PLACEHOLDER]
+
+        ====================
+        ## Exemple of use ##
+        ====================
+
+        python3 murloc.py -i my_data.csv -o /my/output/folder -a my_conf.txt
 
 
-        Idea:
+        ==================================================
+        ## Available options for the configuration file ##
+        ==================================================
+        -> fs:
+            * boruta (classic boruta algorithm)
+            * picker (home made picker algorithm)
+            * boruta-picker (boruta chained with picker)
+        -> clf:
+            * lda (linear discriminant analysis)
+            * rf (random forest)
+            * logistic (logistic regression, work only for binary classification)
+            * xgb (xgboosted trees)
+            * xgb-hyper (xgboosted trees with a step of hyperparmaetrisation, can be a long process)
+        -> annotation:
+            * KEGG-2016 (KEGG database from 2016)
+            * REACTOME (reactome database)
+        -> pca:
+            * all (perform a pca on all the data in the input file)
+            * selected (perform a pca on the data selected by the fs step)
+        -> display:
+            * string (string analysis, work for genes & protein)
+            * heatmap (craft a heatmap of the data using features selected in fs step)
+            * univar (craft violin plot of features that are statisticallt different between groups)
+        -> preprocessing:
+            * drop-outliers (drop outliers from the original dataset, treshold values is by default set to 3 std) 
 
-            config :
-                load a txt config file to pick a fs and a clf
-                -> load this file as an alternative argument for the action arg
+        =====================
+        ## Exemple of conf ##
+        =====================
 
-            report generator :
-                craft a pdf document from the image and log files generated
+        opttions in the configuration file should be write as follow:
+
+            fs_boruta
+            clf_lda
 
 
-        To implement
-            fs:
-                -boruta -> ok
-                -LDA picker -> ok
+        ==================
+        ## To implement ##
+        ==================
             -clf:
-                -lda -> ok
                 -ann
-                -xgboosted tree
                 -dpix
-                -random forest
                 -svm
-                -logistic cascade
+        
+        ##=====================
+        ## Alternative usage ##
+        =======================
 
         possible actions :
             -fs : feature selection
             -clf : classifier
             -brute : let me do the work for you
 
-            TODO : add annotation action
     """)
 
 

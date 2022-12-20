@@ -142,6 +142,28 @@ def create_report(input_file, output_folder):
                     meta_fig.add_image(output_folder+"/logistic_log/logistic_confusion_matrix.png", width='550px')
 
 
+        #-> deal with logistic regression
+        if(os.path.isdir(output_folder+"/xgb_log")):
+            with doc.create(Subsection('xgboosted Tree')):
+
+                #-> hunt acc
+                acc_log = open(output_folder+"/xgb_log/xgb_evaluation.log", "r")
+                cmpt = 0
+                acc = "NA"
+                for line in acc_log:
+                    line = line.rstrip()
+                    if(cmpt == 1):
+                        acc = line
+                    cmpt+=1
+                acc_log.close()
+                doc.append("ACC  = "+str(acc)+" %")
+
+            #-> insert confusion matrix figure
+            if(os.path.isfile(output_folder+"/xgb_log/confusion_matrix_test.png")):
+                with doc.create(Figure(position='h!')) as meta_fig:
+                    meta_fig.add_image(output_folder+"/xgb_log/confusion_matrix_test.png", width='550px')
+
+
     ## Annotation
     if(os.path.isdir(output_folder+"/annotation_log")):
         with doc.create(Section('Annotation')):
