@@ -14,6 +14,10 @@ import display_data
 import network_analysis
 import pandas as pd
 import stat_stuff
+import introspection.run as introspection
+# import introspection.data_reforge as data_reforge
+# import introspection.expand_sig as expand_sig
+# import introspection.retriever as retriever
 
 
 def run_feature_selection(input_file):
@@ -148,7 +152,9 @@ def parse_configuration_file(config_file):
             * heatmap (craft a heatmap of the data using features selected in fs step)
             * univar (craft violin plot of features that are statisticallt different between groups)
         -> preprocessing:
-            * drop-outliers (drop outliers from the original dataset, treshold values is by default set to 3 std) 
+            * drop-outliers (drop outliers from the original dataset, treshold values is by default set to 3 std)
+        -> introspection
+            an action that run the introspection module of murloc, no need to sepcify an algorithm
     """
 
     ## parameters
@@ -160,6 +166,7 @@ def parse_configuration_file(config_file):
     action_to_available_algorithm["pca"] = ["all", 'selected']
     action_to_available_algorithm["display"] = ["string", "heatmap", "univar"]
     action_to_available_algorithm["preprocessing"] = ["drop-outliers"]
+    action_to_available_algorithm["introspection"] = ""
     iterative_limit = "NA"
 
     ## read config file
@@ -167,9 +174,9 @@ def parse_configuration_file(config_file):
     for line in config_data:
         line = line.rstrip()
         line_in_array = line.split("_")
-
-        if(len(line_in_array) > 0):
-            action_type = line_in_array[0]
+        action_type = line_in_array[0]
+            
+        if(len(line_in_array) > 1):
             algorithm = line_in_array[1]
 
             #-> detect iterative mode
@@ -186,6 +193,11 @@ def parse_configuration_file(config_file):
                     print("[!][CONFIG-PARSER] => Can't find algorithm "+str(algorithm))
             else:
                 print("[!][CONFIG-PARSER] => Can't find action "+str(action_type))
+        
+        # catch action that have no algorithm associated
+        elif(action_type in ["introspection"]):
+            instruction_list.append(action_type)
+
         else:
             print("[!][CONFIG-PARSER] => Can't parse line "+str(line))
 
@@ -207,6 +219,7 @@ def run_instruction(instruction_list, input_file, output_folder):
     folder_separator = "/"
     boruta_used = False
     picker_used = False
+    original_file = input_file
 
     ## check if we are running on a fucking windows machine
     if(os.name == 'nt'):
@@ -218,7 +231,8 @@ def run_instruction(instruction_list, input_file, output_folder):
         #-> parse instruction
         instruction = instruction.split("_")
         action = instruction[0]
-        algorithm = instruction[1]
+        if(len(instruction)>1):
+            algorithm = instruction[1]
 
         #-> deal with preprocessing
         if(action == "preprocessing"):
@@ -233,7 +247,7 @@ def run_instruction(instruction_list, input_file, output_folder):
             if(algorithm == "boruta"):
 
                 # -> default parameters
-                iteration = 700
+                iteration = 100
                 depth = 5
                 feature_file = output_folder+folder_separator+"boruta_log"+folder_separator+"boruta_selected_features.csv"
 
@@ -416,6 +430,10 @@ def run_instruction(instruction_list, input_file, output_folder):
                     stat_stuff.run_univar_test(picker_input_file, feature_file, output_folder)
 
 
+        #-> deal with introspection
+        if(action == "introspection"):
+            introspection.run(output_folder,original_file)
+
 
 
 
@@ -547,65 +565,65 @@ def display_help():
 
     print("""
 
-        ====================
-        ## Exemple of use ##
-        ====================
+    ====================
+    ## Exemple of use ##
+    ====================
 
-        python3 murloc.py -i my_data.csv -o /my/output/folder -a my_conf.txt
-
-
-        ==================================================
-        ## Available options for the configuration file ##
-        ==================================================
-        -> fs:
-            * boruta (classic boruta algorithm)
-            * picker (home made picker algorithm)
-            * boruta-picker (boruta chained with picker)
-        -> clf:
-            * lda (linear discriminant analysis)
-            * rf (random forest)
-            * logistic (logistic regression, work only for binary classification)
-            * xgb (xgboosted trees)
-            * xgb-hyper (xgboosted trees with a step of hyperparmaetrisation, can be a long process)
-        -> annotation:
-            * KEGG-2016 (KEGG database from 2016)
-            * REACTOME (reactome database)
-        -> pca:
-            * all (perform a pca on all the data in the input file)
-            * selected (perform a pca on the data selected by the fs step)
-        -> display:
-            * string (string analysis, work for genes & protein)
-            * heatmap (craft a heatmap of the data using features selected in fs step)
-            * univar (craft violin plot of features that are statisticallt different between groups)
-        -> preprocessing:
-            * drop-outliers (drop outliers from the original dataset, treshold values is by default set to 3 std) 
-
-        =====================
-        ## Exemple of conf ##
-        =====================
-
-        opttions in the configuration file should be write as follow:
-
-            fs_boruta
-            clf_lda
+    python3 murloc.py -i my_data.csv -o /my/output/folder -a my_conf.txt
 
 
-        ==================
-        ## To implement ##
-        ==================
-            -clf:
-                -ann
-                -dpix
-                -svm
-        
-        ##=====================
-        ## Alternative usage ##
-        =======================
+    ==================================================
+    ## Available options for the configuration file ##
+    ==================================================
+    -> fs:
+        * boruta (classic boruta algorithm)
+        * picker (home made picker algorithm)
+        * boruta-picker (boruta chained with picker)
+    -> clf:
+        * lda (linear discriminant analysis)
+        * rf (random forest)
+        * logistic (logistic regression, work only for binary classification)
+        * xgb (xgboosted trees)
+        * xgb-hyper (xgboosted trees with a step of hyperparmaetrisation, can be a long process)
+    -> annotation:
+        * KEGG-2016 (KEGG database from 2016)
+        * REACTOME (reactome database)
+    -> pca:
+        * all (perform a pca on all the data in the input file)
+        * selected (perform a pca on the data selected by the fs step)
+    -> display:
+        * string (string analysis, work for genes & protein)
+        * heatmap (craft a heatmap of the data using features selected in fs step)
+        * univar (craft violin plot of features that are statisticallt different between groups)
+    -> preprocessing:
+        * drop-outliers (drop outliers from the original dataset, treshold values is by default set to 3 std) 
 
-        possible actions :
-            -fs : feature selection
-            -clf : classifier
-            -brute : let me do the work for you
+    =====================
+    ## Exemple of conf ##
+    =====================
+
+    opttions in the configuration file should be write as follow:
+
+        fs_boruta
+        clf_lda
+
+
+    ==================
+    ## To implement ##
+    ==================
+        -clf:
+            -ann
+            -dpix
+            -svm
+    
+    ##=====================
+    ## Alternative usage ##
+    =======================
+
+    possible actions :
+        -fs : feature selection
+        -clf : classifier
+        -brute : let me do the work for you
 
     """)
 
