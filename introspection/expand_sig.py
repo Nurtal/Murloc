@@ -1,6 +1,6 @@
 # importation
 import stringdb
-
+import os
 
 
 def get_string_neighboor(gene_list, work_folder):
@@ -14,31 +14,43 @@ def get_string_neighboor(gene_list, work_folder):
 
     # parameters
     gene_to_related_genes = {}
-    save_log_information = False
-
-    if(save_log_information):
-        if(not os.path.isdir(f"{work_folder}/introspection/log")):
-            os.mkdir(f"{work_folder}/introspection/log")
+    save_log_information = True
+    cmpt = 0
+    
+    # init introspection folder if do not exist
+    if(not os.path.isdir(f"{work_folder}/introspection_log/stringdb_log")):
+        os.mkdir(f"{work_folder}/introspection_log/stringdb_log")
 
     # hunt related genes
-    cmpt = 0
     for gene in gene_list:
-        cmpt+=1
-        signame = f"sig_{cmpt}"
-        gene_to_related_genes[signame] = []
-        string_ids = stringdb.get_string_ids([gene])
-        df = stringdb.get_enrichment(string_ids.queryItem)
+        
+        # try to expand the signature
+        try:
+            
+            # init parameters
+            cmpt+=1
+            signame = f"sig_{cmpt}"
+            gene_to_related_genes[signame] = []
+            string_ids = stringdb.get_string_ids([gene])
+            
+            # try to run the request
+            df = stringdb.get_enrichment(string_ids.queryItem)
 
-        # save log
-        if(save_log_information):
-            df.to_csv(f"{work_folder}/introspection/log/{gene}_stringdb_scan.csv", index=False)
+            # save log
+            if(save_log_information):
+                df.to_csv(f"{work_folder}/introspection_log/stringdb_log/{signame}_stringdb_scan.csv", index=False)
 
-        # craft data structure
-        for index, row in df.iterrows():
-            candidate_list = row["inputGenes"].split(",")
-            for candidate in candidate_list:
-                if(candidate not in gene_to_related_genes[signame]):
-                    gene_to_related_genes[signame].append(candidate)
+            # craft data structure
+            for index, row in df.iterrows():
+                candidate_list = row["inputGenes"].split(",")
+                for candidate in candidate_list:
+                    if(candidate not in gene_to_related_genes[signame]):
+                        gene_to_related_genes[signame].append(candidate)
+
+        # catch error if request end badly
+        except:
+            if(save_log_information):
+                print(f"<<INTROSPECTION>> Failed to find related genes to {gene}")
 
     # drop duplicate
     sig_to_target = {}
@@ -80,5 +92,7 @@ if __name__ == "__main__":
 
 
     gene_list = ["STIM1", "ORAI1"]
-    expand_target_list("/tmp/", gene_list)
+    stuff = expand_target_list("/tmp/", gene_list)
+    
+    print(stuff)
     # get_string_neighboor(gene_list, "/tmp/")

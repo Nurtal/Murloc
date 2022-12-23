@@ -112,10 +112,6 @@ def run_reactome_annotation(input_file, output_folder):
     output_file_selected = output_folder+"/annotation_log/reactome_selected_pathways.csv"
     pathway_to_pval = {}
 
-    ## prepare output subdirectory
-    if(not os.path.isdir(output_folder+"/annotation_log")):
-        os.mkdir(output_folder+"/annotation_log")
-    
     ## load genes names
     df_genes = pd.read_csv(input_file)
     markers = ''

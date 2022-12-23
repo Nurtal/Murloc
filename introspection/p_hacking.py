@@ -14,8 +14,14 @@ def run(work_folder, data_file):
     """
 
     # parameters
-    introspection_folder = f"{work_folder}/introspection"
-    statistic_folder = f"{work_folder}/introspection/statistic"
+    introspection_folder = f"{work_folder}/introspection_log"
+    statistic_folder = f"{work_folder}/introspection_log/statistic"
+
+    # check that data file exist
+    if(not os.path.isfile(data_file)):
+        print(f"<<INTROSPECTION||P-HACKING>> no file {data_file}, skipping")
+        return 0
+
 
     # init work environment
     if(not os.path.isdir(introspection_folder)):

@@ -9,7 +9,7 @@ def retrieve_from_annotation(work_folder):
     have to fix the annotation folder name and might be
     adapt to multiple annottaion target files
 
-    -> actually jus use a gene list from the generated data file and return it
+    -> actually just use a gene list from the generated data file and return it
     """
 
     # parameters

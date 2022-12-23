@@ -10,6 +10,10 @@ def reforge(work_folder, target_list, original_dataset_file, output_data_name):
     # parameters
     log_file_name = output_data_name.replace(".csv", ".log")
 
+    # init sub data folder if not exist
+    if(not os.path.isdir(f"{work_folder}/introspection_log/data")):
+        os.mkdir(f"{work_folder}/introspection_log/data")
+
     # try to locate original dataset file
     if(not os.path.isfile(original_dataset_file)):
         print(f"<<!>> [INTROSPECTION] -> can't find the file {original_dataset_file}")
@@ -19,28 +23,24 @@ def reforge(work_folder, target_list, original_dataset_file, output_data_name):
     # check that target list is not empty
     if(len(target_list) == 0):
         print(f"<<!>> [INTROSPECTION] -> the provided target list is empty")
-        print(f"<<!>> [INTROSPECTION] -> droping introspection step")
+        print(f"<<!>> [INTROSPECTION] -> droping introspection step for {output_data_name}")
         return 0
     
-    # check that introspection folder exist
-    if(not os.path.isdir(introspection_folder)):
-        os.mkdir(introspection_folder)
-
     # read original dataset
-    df = df.read_csv(original_dataset_file)
+    df = pd.read_csv(original_dataset_file)
     id_var = list(df.keys())[0]
     label_var = list(df.keys())[-1]
     var_to_keep = [id_var]
     missed_target = []
     for target in target_list:
-        if(target in df.keys()):
+        if(target in list(df.keys())):
             var_to_keep.append(target)
         else:
             missed_target.append(target)
     var_to_keep.append(label_var)
     
     # select targets
-    df = df[target_list]
+    df = df[var_to_keep]
 
     # save file
     df.to_csv(output_data_name, index=False)
