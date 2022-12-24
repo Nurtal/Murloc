@@ -4,11 +4,14 @@ TODO
 ====
 
 # introspection module
-[] include zscore figures from introspection results in report
+[x] write a function to test if zscore figure is significant
+[] test check sinificant zscore function
+[] include significant zscore figures from introspection results in report
 [] add mode for runner to perform only introspection on a pre existent murloc result folder
 [] add mode for runner to perform only introspection on a single data file (same mode as above but catch the input type difference)
 
 # code refactoring
+[x] clean deprecated files
 [] create a directory for fs module
 [] create a directory for the report module
 
@@ -22,5 +25,11 @@ TODO
 
 # report module
 [] add nice style to report
+
+# test module
+[x] create a test module
+[] create a test dataset function
+[] create a test config file
+[] create a test command
 
 

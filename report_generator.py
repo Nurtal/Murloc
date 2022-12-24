@@ -1,15 +1,54 @@
+# importation
+import os
+from pylatex import Document, Section, Subsection, Table, Math, TikZ, Axis, Plot, Figure, Package, Tabular, Itemize
+from pylatex.utils import italic, escape_latex
+import pandas as pd
+import glob
+
+def check_zscore_pval(zscore_figure_name):
+    """
+    Design to check if a zscore figure (usually from introspection module)
+    display significant differences, return 0 if its not the case or information
+    can't be access, return 1 if at least on pvalue is significant in the
+    associated log file
+
+    [TO TEST]
+    """
+
+    # guess log file name
+    log_file = zscore_figure_name.replace(".png", ".log")
+
+    # see if corresponding log file exist
+    if(not os.path.isfile(log_file)):
+        return 0
+
+    # check pvalue in log file
+    log_data = open(log_file, "r")
+    for line in log_data:
+        line = line.rstrip()
+        line_in_array = line.split(" = ")
+        if(len(line_in_array) > 1):
+            pval = 999
+            try:
+                pval = float(line_in_array[1])
+            except:
+                pass
+
+            # return 1 if at least one pval is under treshol
+            if(float(pval) <= 0.05):
+                log_data.close()
+                return 1
+    
+    # close log file
+    log_data.close()
+    return 0
+
+
 
 
 def create_report(input_file, output_folder):
     """
     """
-
-    ## importation
-    from pylatex import Document, Section, Subsection, Table, Math, TikZ, Axis, Plot, Figure, Package, Tabular, Itemize
-    from pylatex.utils import italic, escape_latex
-    import os
-    import pandas as pd
-    import glob
 
     ## parameters
     pdf_file_report = output_folder+"/report"
