@@ -12,8 +12,9 @@ TODO
 
 # code refactoring
 [x] clean deprecated files
-[] create a directory for fs module
+[x] create a directory for fs module
 [] create a directory for the report module
+[] update requirements file
 
 # rational module
 ## the idea is to craft a module that read the results and came with a "rational" to descriminate the groups, e.g find the biological pathway that is most discriminating
@@ -28,8 +29,8 @@ TODO
 
 # test module
 [x] create a test module
-[] create a test dataset function
-[] create a test config file
+[x] create a test dataset function
+[x] create a test config file
 [] create a test command
-
+[] write the test doc in the help function
 

@@ -4,3 +4,5 @@ sklearn
 numpy
 pylatex
 gseapy
+xgboost
+scikit-learn

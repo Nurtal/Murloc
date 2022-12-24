@@ -1,4 +1,15 @@
-
+## importation
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from joblib import dump
+from sklearn.metrics import confusion_matrix
+from sklearn.metrics import accuracy_score
+import dataset_preprocessing
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+import matplotlib.pyplot as plt
+import seaborn as sn
+import os
+import shutil
 
 def run_lda_classifier(input_file, work_folder):
     """
@@ -6,19 +17,6 @@ def run_lda_classifier(input_file, work_folder):
         - generate lda representation
         - save features contributions
     """
-
-    ## importation
-    import pandas as pd
-    from sklearn.model_selection import train_test_split
-    from joblib import dump
-    from sklearn.metrics import confusion_matrix
-    from sklearn.metrics import accuracy_score
-    import dataset_preprocessing
-    from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
-    import matplotlib.pyplot as plt
-    import seaborn as sn
-    import os
-    import shutil
 
     ## parameters
     lda_save_name = work_folder+"/lda_log/lda_model.joblib"

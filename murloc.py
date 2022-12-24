@@ -1,7 +1,7 @@
 
 ## importation
-import fs_boruta
-import fs_picker
+import fs.fs_boruta as fs_boruta
+import fs.fs_picker as fs_picker
 import clf.clf_lda as clf_lda
 import clf.clf_rf as clf_rf
 import clf.clf_logistic as clf_logistic
@@ -646,6 +646,9 @@ if __name__=='__main__':
 
     ## catch arguments
     argv = sys.argv[1:]
+
+    ## catch test
+    print(argv)
 
     ## parse arguments
     input_file = ''
