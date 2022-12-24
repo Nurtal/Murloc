@@ -6,3 +6,6 @@ pylatex
 gseapy
 xgboost
 scikit-learn
+seaborn
+stringdb
+pyfiglet

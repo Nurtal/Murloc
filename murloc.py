@@ -6,6 +6,7 @@ import clf.clf_lda as clf_lda
 import clf.clf_rf as clf_rf
 import clf.clf_logistic as clf_logistic
 import clf.clf_xgb as clf_xgb
+import tests
 import dataset_preprocessing
 import annotation_runner
 import os
@@ -647,8 +648,16 @@ if __name__=='__main__':
     ## catch arguments
     argv = sys.argv[1:]
 
-    ## catch test
-    print(argv)
+    ## catch test instruction
+    if("test" in argv):
+
+        # generate test dataset and conf file
+        tests.manage.run()
+
+        # call run function with the generated files
+
+        # display info and exit
+        sys.exit()
 
     ## parse arguments
     input_file = ''
