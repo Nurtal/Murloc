@@ -1,5 +1,6 @@
 # importation
 import random
+import os
 
 def generate_test_dataset():
     """
@@ -9,13 +10,17 @@ def generate_test_dataset():
     # parameters
     nb_var = 100
     nb_patient = 40
-    output_file_name = "toy_dataset.csv"
+    output_file_name = "tests/data/test_dataset.csv"
+
+    # init data folder if not exist
+    if(not os.path.isdir("tests/data")):
+        os.mkdir("tests/data")
 
     # init file & write header
     data_file = open(output_file_name, "w")
     header = "ID,"
     for x in range(0,nb_var):
-        header+=f"{x},"
+        header+=f"variable_{x},"
     header+="LABEL\n"
     data_file.write(header)
 

@@ -9,3 +9,5 @@ scikit-learn
 seaborn
 stringdb
 pyfiglet
+reactome2py
+statannotations

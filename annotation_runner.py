@@ -57,6 +57,10 @@ def run_annotation(input_file, output_folder):
             if(adjusted_pval <= 0.05):
                 pathway_to_pval[term] = adjusted_pval
                 selected_pathway.append(term)
+
+        # save df results
+        df_results.to_csv(output_file_all, index=False)
+    
     except:
         print("[!][ANNOTATION] => Can't run enrichr alignement")
 
@@ -91,7 +95,6 @@ def run_annotation(input_file, output_folder):
         print("[+][ANNOTATION][KEGG] => Nothing Found")
 
     ## save all annotation results
-    df_results.to_csv(output_file_all, index=False)
 
 
 
