@@ -14,10 +14,10 @@ TODO
 [x] clean deprecated files
 [x] create a directory for fs module
 [] create a directory for the report module
-[] update requirements file
-[] create a clean function in murloc to clean generated test files and folders
+[x] update requirements file
+[x] create a clean function in murloc to clean generated test files and folders
 [] drop unused function in murloc
-[] embed test run in a function in murloc
+[x] embed test run in a function in murloc
 
 # rational module
 ## the idea is to craft a module that read the results and came with a "rational" to descriminate the groups, e.g find the biological pathway that is most discriminating
@@ -35,6 +35,6 @@ TODO
 [x] create a test dataset function
 [x] create a test config file
 [x] create a test command
-[x] create "real" test dataset to test annotation function
+[] create "real" test dataset to test annotation function
 [] write the test doc in the help function
 

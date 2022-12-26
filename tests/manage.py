@@ -21,9 +21,9 @@ def craft_test_material():
     config_data.write("clf_lda\n")
     config_data.write("clf_logistic\n")
     config_data.write("clf_xgb\n")
-    config_data.write("annotation_KEGG-2016\n")
-    config_data.write("annotation_REACTOME\n")
-    config_data.write("introspection\n")
+    config_data.write("pca_selected\n")
+    config_data.write("display_heatmap\n")
+    config_data.write("display_univar\n")
     config_data.close()
 
     # display information
