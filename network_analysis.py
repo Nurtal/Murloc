@@ -46,6 +46,9 @@ def run_string_analysis(selected_feature_file, output_folder):
     # dataframe with the preferred names of the two proteins and the score of the interaction
     interactions = df[['preferredName_A', 'preferredName_B', 'score']]
 
+    
+    # TODO extract list of interaction in genes
+    
 
     ## create graphe
     G=nx.Graph(name='Protein Interaction Graph')

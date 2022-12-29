@@ -21,7 +21,7 @@ def run_pca(data_file, output_folder):
 
     ## preprocess data
     categories = list(df["LABEL"])
-    df = df.drop(columns=['LABEL'])
+    df = df.drop(columns=['ID','LABEL'])
     X = df.values
 
     ## generate OCA
