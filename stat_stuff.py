@@ -40,8 +40,17 @@ def plot_zscore(input_file, gene_list, output_file_name):
             old_label_to_new[label] = cmpt
             cmpt+=1
 
-    #-> prepare dataset
-    features = gene_list
+    #-> prepare feature list
+    features = []
+    for var in gene_list:
+        if(var in list(df.keys())):
+            features.append(var)
+
+    # cancel operation if no variable aivailable
+    if(len(features) == 0):
+        print(f"<!> Can't access features {gene_list}")
+        return 0
+
     df_ifn = df[features]
     df_ifn = df_ifn.apply(zscore)
     df_ifn['Score'] = df_ifn.mean(axis=1)

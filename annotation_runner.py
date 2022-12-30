@@ -1,4 +1,4 @@
-
+from reactome2py import content, analysis
 
 
 
@@ -167,12 +167,60 @@ def run_reactome_annotation(input_file, output_folder):
 
 
 
+def get_reactome_pathway_from_gene_list(gene_list):
+    """
+    return metabolic pathways associated to gene_list using reactome
+    """
 
+    # parameters
+    p_treshold = 0.05
+    extracted_pathways = []
 
+    # craft input for request
+    markers = ''
+    for elt in gene_list:
+        markers+=f"{elt},"
+    markers = markers[:-1]
+    
+    # prepare request
+    result = analysis.identifiers(ids=markers)
+    token = result['summary']['token']
 
+    # send request
+    token_result = analysis.token(
+        token,
+        species='Homo sapiens',
+        page_size='-1',
+        page='-1',
+        sort_by='ENTITIES_FDR',
+        order='ASC',
+        resource='TOTAL',
+        p_value=p_treshold,
+        include_disease=True,
+        min_entities=None,
+        max_entities=None
+    )
+
+    # parse results
+    for path in token_result['pathways']:
+        path_name = path['name']
+        pval = path['entities']['pValue']
+        if(pval <= p_treshold):
+            extracted_pathways.append(path_name)
+
+    # return list of associated pathways
+    return extracted_pathways
 
 #run_annotation("D:\\murloc_output_test4\\toy_dataset_selected_features_from_boruta_selected_features.csv","D:\\murloc_output_test4\\boruta_log\\boruta_selected_features.csv", "D:\\murloc_output_test4")
 
 #run_reactome_annotation("/home/bran/Workspace/REDSIG/star_baseline/tractiss_rnaseq_star_selected_features_from_boruta_selected_features.csv")
 
 #run_reactome_annotation("/home/bran/Workspace/PRECISINV/ccp/murloc_rnaseq/RA/rnaseq_RA_selected_features_from_boruta_selected_features_selected_features_from_picker_selected_features.csv", "/home/bran/Workspace/misc/murloc_test_annotation")
+
+if __name__ == "__main__":
+
+    # test parameters
+
+    # test annotation
+    path_list = get_reactome_pathway_from_gene_list(["ORAI1", "STIM1"])
+    print(path_list)

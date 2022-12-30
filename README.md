@@ -4,8 +4,26 @@ Core
 This program should replace me, or at least the interesting part of me, for the LBAI
 
 
+MAIN USAGE
+==========
+This is a bit messy for now, but the main usage should be something as:
+-> run feature selection (boruta only seems safe)
+-> run classification (throw everything we've got)
+-> run stringdb
+-> run stat in stringdb results
+
 TODO
 ====
+
+[x] extract list of interacted gene in stringdb network
+[] associate each connected set of genes to a pathway or a list of pathway
+[x] compute zscore test for each connected set of genes
+[] include zscore figure in report
+[] craft log file island id - pathway name - associated genes - zscore pval
+[] include log file as table in report (order by pval)
+
+IMPROVEMENT LIST
+================
 
 # introspection module
 [x] write a function to test if zscore figure is significant
