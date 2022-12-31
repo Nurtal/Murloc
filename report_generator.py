@@ -46,7 +46,7 @@ def check_zscore_pval(zscore_figure_name):
 
 
 
-def create_report(input_file, output_folder):
+def create_report_pdf(input_file, output_folder):
     """
     """
 
@@ -303,7 +303,7 @@ def create_report(input_file, output_folder):
 
 
 
-def create_report_html(input_file, output_folder):
+def create_report(input_file, output_folder):
     """
     """
 
@@ -529,6 +529,11 @@ def create_report_html(input_file, output_folder):
         if(not os.path.isfile(output_folder+"/annotation_log/reactome_selected_pathways.csv") and not os.path.isfile(output_folder+"/annotation_log/selected_pathways.csv")):
             report_data.write("<p> No Pathway detected </p>\n")
     
+        ## display zscore for each island
+        report_data.write(f"<h3>Zscore for identified String subnetwork </h3>\n")
+        for zscore_fig in glob.glob(f"{output_folder}/display_log/stringdb_zscore/*.png"):
+            report_data.write(f"<img src= \"{zscore_fig}\"/>\n")
+
     #=======================#
     # intropsection section #
     #=======================#

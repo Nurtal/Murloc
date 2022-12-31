@@ -18,7 +18,7 @@ TODO
 [x] extract list of interacted gene in stringdb network
 [x] associate each connected set of genes to a pathway or a list of pathway
 [x] compute zscore test for each connected set of genes
-[] include zscore figure in report
+[x] include zscore figure in report
 [] craft log file island id - pathway name - associated genes - zscore pval
 [] include log file as table in report (order by pval)
 
@@ -58,7 +58,7 @@ IMPROVEMENT LIST
 [] include pca in report
 [x] include heatmap in report
 [] add nice style to report
-[] let html be the default report option (switch name function)
+[x] let html be the default report option (switch name function)
 [] refactor html generator (put clf in a loop)
 
 # test module
