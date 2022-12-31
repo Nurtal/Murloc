@@ -534,6 +534,17 @@ def create_report(input_file, output_folder):
         for zscore_fig in glob.glob(f"{output_folder}/display_log/stringdb_zscore/*.png"):
             report_data.write(f"<img src= \"{zscore_fig}\"/>\n")
 
+        ## display pathway name table
+        if(os.path.isfile(f"{output_folder}/display_log/stringdb_island_annotation.csv")):
+            report_data.write("<h3>pathway table of identified sub network</h3>\n")
+            report_data.write("<table>\n<tr>\n<th>SUBNET ID</th>\n<th>PATHWAYS</th>\n</tr>\n")
+            df_pathway = pd.read_csv(f"{output_folder}/display_log/stringdb_island_annotation.csv")
+            for index, row in df_pathway.iterrows():
+                island_id = row["ISLAND_ID"]
+                pathway = row['PATHWAYS']
+                report_data.write(f"<tr>\n<td>{island_id}</td>\n<td>{pathway}</td>\n</tr>\n")
+            report_data.write("</table>\n")
+
     #=======================#
     # intropsection section #
     #=======================#

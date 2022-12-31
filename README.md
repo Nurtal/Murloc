@@ -19,8 +19,8 @@ TODO
 [x] associate each connected set of genes to a pathway or a list of pathway
 [x] compute zscore test for each connected set of genes
 [x] include zscore figure in report
-[] craft log file island id - pathway name - associated genes - zscore pval
-[] include log file as table in report (order by pval)
+[x] craft log file island id - pathway name - associated genes
+[x] include log file as table in report (order by pval)
 
 IMPROVEMENT LIST
 ================
