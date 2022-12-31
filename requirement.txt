@@ -11,3 +11,4 @@ stringdb
 pyfiglet
 reactome2py
 statannotations
+networkx

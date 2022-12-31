@@ -16,7 +16,7 @@ TODO
 ====
 
 [x] extract list of interacted gene in stringdb network
-[] associate each connected set of genes to a pathway or a list of pathway
+[x] associate each connected set of genes to a pathway or a list of pathway
 [x] compute zscore test for each connected set of genes
 [] include zscore figure in report
 [] craft log file island id - pathway name - associated genes - zscore pval
