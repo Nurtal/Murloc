@@ -248,7 +248,7 @@ def run_instruction(instruction_list, input_file, output_folder):
             if(algorithm == "boruta"):
 
                 # -> default parameters
-                iteration = 100
+                iteration = 300
                 depth = 5
                 feature_file = output_folder+folder_separator+"boruta_log"+folder_separator+"boruta_selected_features.csv"
 
