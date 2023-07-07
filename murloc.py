@@ -1,4 +1,3 @@
-
 ## importation
 import fs.fs_boruta as fs_boruta
 import fs.fs_picker as fs_picker
@@ -16,14 +15,14 @@ import network_analysis
 import pandas as pd
 import stat_stuff
 import introspection.run as introspection
+
 # import introspection.data_reforge as data_reforge
 # import introspection.expand_sig as expand_sig
 # import introspection.retriever as retriever
 
 
 def run_feature_selection(input_file):
-    """
-    """
+    """ """
 
     ## importation
     import fs_boruta
@@ -33,19 +32,17 @@ def run_feature_selection(input_file):
     ## ask user with algorithm to use
 
     ## Boruta Case ##-----------------------------------------------------------
-    #-> TODO : ask user for config
-    #-> init default config
+    # -> TODO : ask user for config
+    # -> init default config
     iteration = 300
     depth = 5
 
-    #-> run boruta with config
+    # -> run boruta with config
     fs_boruta.run_boruta(input_file, iteration, depth, output_folder)
 
 
-
 def run_classification(input_file, output_folder):
-    """
-    """
+    """ """
 
     ## importation
     import clf_lda
@@ -55,14 +52,12 @@ def run_classification(input_file, output_folder):
     ## ask user which algorithm to use
 
     ## LDA Case ##--------------------------------------------------------------
-    #-> run lda
+    # -> run lda
     clf_lda.run_lda_classifier(input_file, output_folder)
 
 
-
 def run_annotation(output_folder):
-    """
-    """
+    """ """
 
     ## importation
     import pandas as pd
@@ -76,21 +71,21 @@ def run_annotation(output_folder):
     reactome_target_file = ["reactome_manual.csv", "manual_reactome.csv"]
 
     ## check if folder exist
-    if(os.path.isdir(output_folder)):
+    if os.path.isdir(output_folder):
 
         ## determine input file
-        #-> check for selected data files
+        # -> check for selected data files
         best_candidate = 0
-        for candidates_file in glob.glob(output_folder+"/*_selected_features.csv"):
+        for candidates_file in glob.glob(output_folder + "/*_selected_features.csv"):
             candidate = candidates_file.split("selected_features")
             candidate = len(candidates_file)
-            if(candidate > best_candidate):
+            if candidate > best_candidate:
                 best_candidate = candidate
                 input_file = candidates_file
     else:
-        print("[!][ANNOTATION] => can't find folder "+str(output_folder))
+        print("[!][ANNOTATION] => can't find folder " + str(output_folder))
 
-    if(os.path.isfile(input_file)):
+    if os.path.isfile(input_file):
 
         ## call KEGG annotation
         annotation_runner.run_annotation(input_file, output_folder)
@@ -100,27 +95,22 @@ def run_annotation(output_folder):
 
         ## craft features used file
         df = pd.read_csv(input_file)
-        feature_file = open(output_folder+"/annotation_log/features_used.csv", "w")
+        feature_file = open(output_folder + "/annotation_log/features_used.csv", "w")
         feature_file.write("FEATURE\n")
         for x in df.keys():
-            if(x not in ['ID', "LABEL"]):
-                feature_file.write(str(x)+"\n")
+            if x not in ["ID", "LABEL"]:
+                feature_file.write(str(x) + "\n")
         feature_file.close()
 
         ## check if there is a reactome result file
         for tf in reactome_target_file:
-            if(os.path.isfile(output_folder+"/annotation_log/"+tf)):
+            if os.path.isfile(output_folder + "/annotation_log/" + tf):
                 stat_stuff.generate_z_score_from_reactome_results_file(
-                    input_file,
-                    output_folder+"/annotation_log/"+tf,
-                    output_folder
+                    input_file, output_folder + "/annotation_log/" + tf, output_folder
                 )
-
 
     else:
         print("[!][ANNOTATION] => can't determined input file")
-
-
 
 
 def parse_configuration_file(config_file):
@@ -163,8 +153,8 @@ def parse_configuration_file(config_file):
     action_to_available_algorithm = {}
     action_to_available_algorithm["fs"] = ["boruta", "picker", "boruta-picker"]
     action_to_available_algorithm["clf"] = ["lda", "rf", "logistic", "xgb", "xgb-hyper"]
-    action_to_available_algorithm["annotation"] = ["KEGG-2016", 'REACTOME']
-    action_to_available_algorithm["pca"] = ["all", 'selected']
+    action_to_available_algorithm["annotation"] = ["KEGG-2016", "REACTOME"]
+    action_to_available_algorithm["pca"] = ["all", "selected"]
     action_to_available_algorithm["display"] = ["string", "heatmap", "univar"]
     action_to_available_algorithm["preprocessing"] = ["drop-outliers"]
     action_to_available_algorithm["introspection"] = ""
@@ -176,39 +166,39 @@ def parse_configuration_file(config_file):
         line = line.rstrip()
         line_in_array = line.split("_")
         action_type = line_in_array[0]
-            
-        if(len(line_in_array) > 1):
+
+        if len(line_in_array) > 1:
             algorithm = line_in_array[1]
 
-            #-> detect iterative mode
-            if(action_type == "iterative"):
+            # -> detect iterative mode
+            if action_type == "iterative":
                 try:
                     iterative_limit = float(line_in_array[1])
                 except:
-                    print("[!] can't parse iteration limit in "+str(line))
+                    print("[!] can't parse iteration limit in " + str(line))
 
-            if(action_type in list(action_to_available_algorithm.keys())):
-                if(algorithm in action_to_available_algorithm[action_type]):
+            if action_type in list(action_to_available_algorithm.keys()):
+                if algorithm in action_to_available_algorithm[action_type]:
                     instruction_list.append(line)
                 else:
-                    print("[!][CONFIG-PARSER] => Can't find algorithm "+str(algorithm))
+                    print(
+                        "[!][CONFIG-PARSER] => Can't find algorithm " + str(algorithm)
+                    )
             else:
-                print("[!][CONFIG-PARSER] => Can't find action "+str(action_type))
-        
+                print("[!][CONFIG-PARSER] => Can't find action " + str(action_type))
+
         # catch action that have no algorithm associated
-        elif(action_type in ["introspection"]):
+        elif action_type in ["introspection"]:
             instruction_list.append(action_type)
 
         else:
-            print("[!][CONFIG-PARSER] => Can't parse line "+str(line))
+            print("[!][CONFIG-PARSER] => Can't parse line " + str(line))
 
     ## close config file
     config_data.close()
 
     ## return list of action
-    return (instruction_list,iterative_limit)
-
-
+    return (instruction_list, iterative_limit)
 
 
 def run_instruction(instruction_list, input_file, output_folder):
@@ -223,85 +213,108 @@ def run_instruction(instruction_list, input_file, output_folder):
     original_file = input_file
 
     ## check if we are running on a fucking windows machine
-    if(os.name == 'nt'):
+    if os.name == "nt":
         folder_separator = "\\"
 
     ## loop over instruction
     for instruction in instruction_list:
 
-        #-> parse instruction
+        # -> parse instruction
         instruction = instruction.split("_")
         action = instruction[0]
-        if(len(instruction)>1):
+        if len(instruction) > 1:
             algorithm = instruction[1]
 
-        #-> deal with preprocessing
-        if(action == "preprocessing"):
-            if(algorithm == "drop-outliers"):
+        # -> deal with preprocessing
+        if action == "preprocessing":
+            if algorithm == "drop-outliers":
                 df = pd.read_csv(input_file)
-                df = dataset_preprocessing.drop_outliers(df,3)
-                df.to_csv(output_folder+"/dataset_outliers_dropped.csv", index=False)
-                input_file = output_folder+"/dataset_outliers_dropped.csv"
+                df = dataset_preprocessing.drop_outliers(df, 3)
+                df.to_csv(output_folder + "/dataset_outliers_dropped.csv", index=False)
+                input_file = output_folder + "/dataset_outliers_dropped.csv"
 
-        #-> deal with feature selection
-        if(action == "fs"):
-            if(algorithm == "boruta"):
+        # -> deal with feature selection
+        if action == "fs":
+            if algorithm == "boruta":
 
                 # -> default parameters
                 iteration = 300
                 depth = 5
-                feature_file = output_folder+folder_separator+"boruta_log"+folder_separator+"boruta_selected_features.csv"
+                feature_file = (
+                    output_folder
+                    + folder_separator
+                    + "boruta_log"
+                    + folder_separator
+                    + "boruta_selected_features.csv"
+                )
 
-                #-> run boruta
+                # -> run boruta
                 fs_boruta.run_boruta(input_file, iteration, depth, output_folder)
 
-                #-> craft dataset with selected variables
-                input_file = dataset_preprocessing.craft_selected_variable_dataset(input_file, feature_file, output_folder)
+                # -> craft dataset with selected variables
+                input_file = dataset_preprocessing.craft_selected_variable_dataset(
+                    input_file, feature_file, output_folder
+                )
 
-                #-> update workflow parameters
+                # -> update workflow parameters
                 boruta_used = True
                 boruta_input_file = input_file
 
-            if(algorithm == "picker"):
+            if algorithm == "picker":
 
-                #-> default parameters
+                # -> default parameters
                 min_features = 5
                 step = 1
-                feature_file = output_folder+folder_separator+"picker_log"+folder_separator+"picker_selected_features.csv"
+                feature_file = (
+                    output_folder
+                    + folder_separator
+                    + "picker_log"
+                    + folder_separator
+                    + "picker_selected_features.csv"
+                )
 
-                #-> run picker
+                # -> run picker
                 fs_picker.run_picker(input_file, output_folder, min_features, step)
 
-                #-> generate graphics
+                # -> generate graphics
                 fs_picker.plot_acc(output_folder)
 
-                #-> save best features
+                # -> save best features
                 fs_picker.hunt_best_conf(output_folder)
 
-                #-> craft dataset with selected variables
-                input_file = dataset_preprocessing.craft_selected_variable_dataset(input_file, feature_file, output_folder)
+                # -> craft dataset with selected variables
+                input_file = dataset_preprocessing.craft_selected_variable_dataset(
+                    input_file, feature_file, output_folder
+                )
 
-                #-> update workflow parameters
+                # -> update workflow parameters
                 picker_used = True
                 picker_input_file = input_file
 
-            if(algorithm == "boruta-picker"):
+            if algorithm == "boruta-picker":
 
                 ## Start with Boruta
                 # -> default parameters
                 iteration = 300
                 depth = 5
-                feature_file = output_folder+folder_separator+"boruta_log"+folder_separator+"boruta_selected_features.csv"
+                feature_file = (
+                    output_folder
+                    + folder_separator
+                    + "boruta_log"
+                    + folder_separator
+                    + "boruta_selected_features.csv"
+                )
 
-                #-> run boruta
+                # -> run boruta
                 fs_boruta.run_boruta(input_file, iteration, depth, output_folder)
 
-                #-> craft dataset with selected variables
-                input_file = dataset_preprocessing.craft_selected_variable_dataset(input_file, feature_file, output_folder)
-
+                # -> craft dataset with selected variables
+                input_file = dataset_preprocessing.craft_selected_variable_dataset(
+                    input_file, feature_file, output_folder
+                )
 
                 ## Follow with picker
-                #-> default parameters
+                # -> default parameters
                 min_features = 10
                 step = 1
 
@@ -309,133 +322,180 @@ def run_instruction(instruction_list, input_file, output_folder):
                 ## just copy the boruta file into the picker emplacement and display a waring
                 nb_boruta_features = pd.read_csv(feature_file)
                 nb_boruta_features = len(nb_boruta_features["FEATURE"])
-                if(nb_boruta_features <= min_features):
+                if nb_boruta_features <= min_features:
 
-                    print("[!][BORUTA-PICKER] => min features selection already reached by Boruta ("+str(nb_boruta_features)+" found for a RFE min if "+str(min_features)+")")
-                    print("[!][BORUTA-PICKER] => RFE not run, selecting Boruta features instead")
+                    print(
+                        "[!][BORUTA-PICKER] => min features selection already reached by Boruta ("
+                        + str(nb_boruta_features)
+                        + " found for a RFE min if "
+                        + str(min_features)
+                        + ")"
+                    )
+                    print(
+                        "[!][BORUTA-PICKER] => RFE not run, selecting Boruta features instead"
+                    )
 
                     ## craft architecture file if not already exist
-                    if(not os.path.isdir(output_folder+folder_separator+"picker_log")):
-                        os.mkdir(output_folder+folder_separator+"picker_log")
-                    destination_file = output_folder+folder_separator+"picker_log"+folder_separator+"picker_selected_features.csv"
+                    if not os.path.isdir(
+                        output_folder + folder_separator + "picker_log"
+                    ):
+                        os.mkdir(output_folder + folder_separator + "picker_log")
+                    destination_file = (
+                        output_folder
+                        + folder_separator
+                        + "picker_log"
+                        + folder_separator
+                        + "picker_selected_features.csv"
+                    )
                     shutil.copy(feature_file, destination_file)
 
                 else:
 
                     ## everything ok, proceed to run RFE
-                    feature_file = output_folder+folder_separator+"picker_log"+folder_separator+"picker_selected_features.csv"
+                    feature_file = (
+                        output_folder
+                        + folder_separator
+                        + "picker_log"
+                        + folder_separator
+                        + "picker_selected_features.csv"
+                    )
 
-                    #-> run picker
+                    # -> run picker
                     fs_picker.run_picker(input_file, output_folder, min_features, step)
 
-                    #-> generate graphics
+                    # -> generate graphics
                     fs_picker.plot_acc(output_folder)
 
-                    #-> save best features
+                    # -> save best features
                     fs_picker.hunt_best_conf(output_folder)
 
-                    #-> craft dataset with selected variables
-                    input_file = dataset_preprocessing.craft_selected_variable_dataset(input_file, feature_file, output_folder)
+                    # -> craft dataset with selected variables
+                    input_file = dataset_preprocessing.craft_selected_variable_dataset(
+                        input_file, feature_file, output_folder
+                    )
 
-                #-> update workflow parameters
+                # -> update workflow parameters
                 picker_used = True
                 picker_input_file = input_file
 
+        # -> deal with classification
+        elif action == "clf":
+            if algorithm == "lda":
 
-        #-> deal with classification
-        elif(action == "clf"):
-            if(algorithm == "lda"):
-
-                #-> run lda
+                # -> run lda
                 clf_lda.run_lda_classifier(input_file, output_folder)
 
+            if algorithm == "rf":
 
-            if(algorithm == "rf"):
-
-                #-> run random forest
+                # -> run random forest
                 clf_rf.run_rf_classifier(input_file, output_folder)
 
-            if(algorithm == "logistic"):
+            if algorithm == "logistic":
 
-                #-> run logistic
+                # -> run logistic
                 clf_logistic.run_logistic_regression(input_file, output_folder)
 
-            if(algorithm == "xgb"):
+            if algorithm == "xgb":
 
-                #-> run xgboosted tree
+                # -> run xgboosted tree
                 clf_xgb.run_xgb_classifier(input_file, output_folder)
 
-            if(algorithm == "xgb-hyper"):
+            if algorithm == "xgb-hyper":
 
-                #-> run hyperparametrisation
+                # -> run hyperparametrisation
                 clf_xgb.run_hyperparametrisation(input_file, output_folder)
 
-                #-> run xgboosted tree
+                # -> run xgboosted tree
                 clf_xgb.run_xgb_classifier(input_file, output_folder)
-        
-        #-> deal with annotation
-        elif(action == "annotation"):
 
-            if(algorithm == "KEGG-2016"):
+        # -> deal with annotation
+        elif action == "annotation":
 
-                if(boruta_used and not picker_used):
+            if algorithm == "KEGG-2016":
+
+                if boruta_used and not picker_used:
                     annotation_runner.run_annotation(boruta_input_file, output_folder)
-                elif(not boruta_used and picker_used):
+                elif not boruta_used and picker_used:
                     annotation_runner.run_annotation(picker_input_file, output_folder)
-                elif(boruta_used and picker_used):
-                    print("[!][ANNOTATION] => annotation for all fs technique not implemented yet")
+                elif boruta_used and picker_used:
+                    print(
+                        "[!][ANNOTATION] => annotation for all fs technique not implemented yet"
+                    )
                     print("[!][ANNOTATION] => can't run annotation")
-                elif(not boruta_used and not picker_used):
+                elif not boruta_used and not picker_used:
                     annotation_runner.run_annotation(input_file, output_folder)
 
-            if(algorithm == "REACTOME"):
+            if algorithm == "REACTOME":
 
-                if(boruta_used and not picker_used):
-                    annotation_runner.run_reactome_annotation(boruta_input_file, output_folder)
-                elif(not boruta_used and picker_used):
-                    annotation_runner.run_reactome_annotation(picker_input_file, output_folder)
-                elif(boruta_used and picker_used):
-                    print("[!][ANNOTATION] => annotation for all fs technique not implemented yet")
+                if boruta_used and not picker_used:
+                    annotation_runner.run_reactome_annotation(
+                        boruta_input_file, output_folder
+                    )
+                elif not boruta_used and picker_used:
+                    annotation_runner.run_reactome_annotation(
+                        picker_input_file, output_folder
+                    )
+                elif boruta_used and picker_used:
+                    print(
+                        "[!][ANNOTATION] => annotation for all fs technique not implemented yet"
+                    )
                     print("[!][ANNOTATION] => can't run annotation")
-                elif(not boruta_used and not picker_used):
+                elif not boruta_used and not picker_used:
                     annotation_runner.run_reactome_annotation(input_file, output_folder)
 
-        #-> deal PCA
-        if(action == "pca"):
-            if(algorithm == "all"):
+        # -> deal PCA
+        if action == "pca":
+            if algorithm == "all":
                 display_data.run_pca(input_file, output_folder)
-            if(algorithm == "selected"):
-                if(boruta_used and not picker_used):
+            if algorithm == "selected":
+                if boruta_used and not picker_used:
                     display_data.run_pca(boruta_input_file, output_folder)
-                elif(picker_used):
+                elif picker_used:
                     display_data.run_pca(picker_input_file, output_folder)
 
-        #-> deal with display
-        if(action == "display"):
-            if(algorithm == "string"):
-                if(boruta_used and not picker_used):
-                    feature_file = output_folder+folder_separator+"boruta_log"+folder_separator+"boruta_selected_features.csv"
-                    network_analysis.run_string_analysis(input_file, feature_file, output_folder)
-                elif(picker_used):
-                    feature_file = output_folder+folder_separator+"picker_log"+folder_separator+"picker_selected_features.csv"
-                    network_analysis.run_string_analysis(input_file, feature_file, output_folder)
-            if(algorithm == "heatmap"):
-                if(boruta_used and not picker_used):
+        # -> deal with display
+        if action == "display":
+            if algorithm == "string":
+                if boruta_used and not picker_used:
+                    feature_file = (
+                        output_folder
+                        + folder_separator
+                        + "boruta_log"
+                        + folder_separator
+                        + "boruta_selected_features.csv"
+                    )
+                    network_analysis.run_string_analysis(
+                        input_file, feature_file, output_folder
+                    )
+                elif picker_used:
+                    feature_file = (
+                        output_folder
+                        + folder_separator
+                        + "picker_log"
+                        + folder_separator
+                        + "picker_selected_features.csv"
+                    )
+                    network_analysis.run_string_analysis(
+                        input_file, feature_file, output_folder
+                    )
+            if algorithm == "heatmap":
+                if boruta_used and not picker_used:
                     display_data.craft_heatmap(boruta_input_file, output_folder)
-                elif(picker_used):
+                elif picker_used:
                     display_data.craft_heatmap(picker_input_file, output_folder)
-            if(algorithm == "univar"):
-                if(boruta_used and not picker_used):
-                    stat_stuff.run_univar_test(boruta_input_file, feature_file, output_folder)
-                elif(picker_used):
-                    stat_stuff.run_univar_test(picker_input_file, feature_file, output_folder)
+            if algorithm == "univar":
+                if boruta_used and not picker_used:
+                    stat_stuff.run_univar_test(
+                        boruta_input_file, feature_file, output_folder
+                    )
+                elif picker_used:
+                    stat_stuff.run_univar_test(
+                        picker_input_file, feature_file, output_folder
+                    )
 
-
-        #-> deal with introspection
-        if(action == "introspection"):
-            introspection.run(output_folder,original_file)
-
-
+        # -> deal with introspection
+        if action == "introspection":
+            introspection.run(output_folder, original_file)
 
 
 def run_instruction_iterative_mode(instruction_list, input_file, output_folder):
@@ -454,49 +514,51 @@ def run_instruction_iterative_mode(instruction_list, input_file, output_folder):
     target_acc_file_list = [
         "rf_log/rf_evaluation.log",
         "lda_log/lda_evaluation.log",
-        "logistic_log/logistic_evaluation.log"
+        "logistic_log/logistic_evaluation.log",
     ]
 
     ## check fs process
-    if("fs_boruta-picker" in instruction_list[0] or "fs_picker" in instruction_list[0]):
+    if "fs_boruta-picker" in instruction_list[0] or "fs_picker" in instruction_list[0]:
         feature_file = "picker_log/picker_selected_features.csv"
 
     ## init loop
-    while(acc_check):
+    while acc_check:
 
-        #-> create output sub folder
-        sub_folder = output_folder+"/iterative_mining_"+str(cmpt_iteration)
+        # -> create output sub folder
+        sub_folder = output_folder + "/iterative_mining_" + str(cmpt_iteration)
         os.mkdir(sub_folder)
 
-        #-> run with instruction
+        # -> run with instruction
         run_instruction(instruction_list[0], input_file, sub_folder)
 
-        #-> control acc
+        # -> control acc
         acc_check = False
         for tf in target_acc_file_list:
-            if(os.path.isfile(sub_folder+"/"+tf)):
-                acc = pd.read_csv(sub_folder+"/"+tf)
-                acc = list(acc['ACC'])
+            if os.path.isfile(sub_folder + "/" + tf):
+                acc = pd.read_csv(sub_folder + "/" + tf)
+                acc = list(acc["ACC"])
                 acc = float(acc[0])
-                if(acc >= acc_limit):
+                if acc >= acc_limit:
                     acc_check = True
 
-        if(acc_check):
+        if acc_check:
 
-            #-> update iteration cmpt
-            cmpt_iteration +=1
+            # -> update iteration cmpt
+            cmpt_iteration += 1
 
-            #-> create new input file
-            if(os.path.isfile(sub_folder+"/"+feature_file)):
+            # -> create new input file
+            if os.path.isfile(sub_folder + "/" + feature_file):
                 input_data = pd.read_csv(input_file)
-                feature_drop_list =  pd.read_csv(sub_folder+"/"+feature_file)
+                feature_drop_list = pd.read_csv(sub_folder + "/" + feature_file)
                 feature_drop_list = list(feature_drop_list["FEATURE"])
                 feature_to_keep = []
                 for k in list(input_data.keys()):
-                    if(k not in feature_drop_list):
+                    if k not in feature_drop_list:
                         feature_to_keep.append(k)
                 input_data = input_data[feature_to_keep]
-                input_file = sub_folder+"/dataset_iteration_"+str(cmpt_iteration)+".csv"
+                input_file = (
+                    sub_folder + "/dataset_iteration_" + str(cmpt_iteration) + ".csv"
+                )
                 input_data.to_csv(input_file, index=False)
 
 
@@ -512,15 +574,10 @@ def run_test(test_output_folder):
     tests.manage.craft_test_material()
 
     # call run function with the generated files
-    run(
-        "tests/data/test_dataset.csv",
-        test_output_folder,
-        "config/test_config.conf"
-    )
-    
+    run("tests/data/test_dataset.csv", test_output_folder, "config/test_config.conf")
+
     # display info and exit
     sys.exit()
-
 
 
 def clean(output_folder):
@@ -529,25 +586,23 @@ def clean(output_folder):
     """
 
     # clean test data
-    if(os.path.isfile("tests/data/test_dataset.csv")):
+    if os.path.isfile("tests/data/test_dataset.csv"):
         os.remove("tests/data/test_dataset.csv")
 
     # clean conf file
-    if(os.path.isfile("config/test_config.conf")):
+    if os.path.isfile("config/test_config.conf"):
         os.remove("config/test_config.conf")
 
     # clean output folder
-    if(os.path.isdir(output_folder)):
+    if os.path.isdir(output_folder):
         os.system(f"rm -rv {output_folder}")
 
     # display information
     print("[CLEAN] -> test files and folder cleaned")
 
 
-
 def run(input_file, output_folder, action):
-    """
-    """
+    """ """
 
     ## importation
     import os
@@ -556,55 +611,47 @@ def run(input_file, output_folder, action):
     ## parameters
 
     ## check if input file exist
-    if(not os.path.isfile(input_file) and action != "annotation"):
-        print("[!] Can't find "+str(input_file))
+    if not os.path.isfile(input_file) and action != "annotation":
+        print("[!] Can't find " + str(input_file))
         return -1
 
     ## check if output folder exist, if not create it
-    if(not os.path.isdir(output_folder)):
+    if not os.path.isdir(output_folder):
         os.mkdir(output_folder)
 
     ## hunt action
-    if(action == "brute"):
-        #-> run feature selection
+    if action == "brute":
+        # -> run feature selection
         pass
 
-        #-> run classification
+        # -> run classification
 
-        #-> create report
-    elif(action == "clf"):
+        # -> create report
+    elif action == "clf":
         run_classification(input_file, output_folder)
         report_generator.create_report(input_file, output_folder)
-    elif(action == "fs"):
+    elif action == "fs":
         run_feature_selection(input_file)
         report_generator.create_report(input_file, output_folder)
-    elif(os.path.isfile(action)):
+    elif os.path.isfile(action):
         instruction_list = parse_configuration_file(action)
-        if(instruction_list[1] == "NA"):
+        if instruction_list[1] == "NA":
             run_instruction(instruction_list[0], input_file, output_folder)
             report_generator.create_report(input_file, output_folder)
         else:
             run_instruction_iterative_mode(instruction_list, input_file, output_folder)
-    elif(action == "annotation"):
+    elif action == "annotation":
         run_annotation(output_folder)
 
-
     ## create report
-    #report_generator.create_report(input_file, output_folder)
-
-
-
-
-
-
-
+    # report_generator.create_report(input_file, output_folder)
 
 
 def display_help():
-    """
-    """
+    """ """
 
-    print("""
+    print(
+        """
 
     ====================
     ## Exemple of use ##
@@ -677,80 +724,78 @@ def display_help():
         
         python3 murloc.py test
 
-    """)
-
-
-
+    """
+    )
 
 
 ##------##
 ## MAIN ########################################################################
 ##------##
-if __name__=='__main__':
+if __name__ == "__main__":
 
     ## importation
     import sys
     import getopt
     from colorama import init
+
     init(strip=not sys.stdout.isatty())
     from termcolor import cprint
     from pyfiglet import figlet_format
 
     ## parameters
     test_output_folder = "/tmp/murloc_test"
-    input_file = ''
-    output_folder = ''
-    action = ''
-    
+    input_file = ""
+    output_folder = ""
+    action = ""
+
     ## catch arguments
     argv = sys.argv[1:]
 
     ## catch single word instruction
-    if(len(argv) == 1):
+    if len(argv) == 1:
 
         # craft test materials (dataset and config file)
         # run "classic" murloc with generated test files
-        if(argv[0] == "test"):
+        if argv[0] == "test":
             run_test(test_output_folder)
 
         # clean all files that migh have been generated by test
         # including the test output folder
-        elif(argv[0] == "clean"):
+        elif argv[0] == "clean":
             clean(test_output_folder)
             sys.exit()
 
     ## parse arguments
     try:
-       opts, args = getopt.getopt(argv,"hi:o:a:",["ifile=","ofolder=", "action="])
+        opts, args = getopt.getopt(argv, "hi:o:a:", ["ifile=", "ofolder=", "action="])
     except getopt.GetoptError:
-       display_help()
-       sys.exit(2)
+        display_help()
+        sys.exit(2)
     for opt, arg in opts:
-       if opt in ('-h', '--help'):
-           display_help()
-           sys.exit()
-       elif opt in ("-i", "--ifle"):
-          input_file = arg
-       elif opt in ("-o", "--ofolder"):
-           output_folder = arg
-       elif opt in ("-a", "--action"):
-           action = arg
-
+        if opt in ("-h", "--help"):
+            display_help()
+            sys.exit()
+        elif opt in ("-i", "--ifle"):
+            input_file = arg
+        elif opt in ("-o", "--ofolder"):
+            output_folder = arg
+        elif opt in ("-a", "--action"):
+            action = arg
 
     ## display cool banner
-    text="MURLOC - Manage Unnecessary Recurrent & Long & Obscure Computation"
+    text = "MURLOC - Manage Unnecessary Recurrent & Long & Obscure Computation"
     cprint(figlet_format(text, font="standard"), "blue")
 
     ## check that all arguments are present
-    if(input_file == '' and action != "annotation"):
+    if input_file == "" and action != "annotation":
         print("[!] No input file detected")
         print("[!] Use -h or --help options to get more informations")
         sys.exit()
-    if(output_folder == ''):
+    if output_folder == "":
         print("[!] No output folder detected")
         print("[!] Use -h or --help options to get more informations")
         sys.exit()
-    if(action == ''):
+    if action == "":
         print("[!] No action detected")
         print("[!] Use -h or --help options to get more informations")
         sys.exit()
